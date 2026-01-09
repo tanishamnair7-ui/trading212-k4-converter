@@ -316,17 +316,18 @@ main {
 }
 
 .k4-summary {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #fbbf24;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 2px solid var(--primary);
     border-radius: 16px;
     padding: 30px;
     margin-bottom: 30px;
 }
 
 .k4-summary h3 {
-    color: var(--text);
+    color: var(--primary-dark);
     margin-bottom: 20px;
     font-size: 1.3em;
+    font-weight: 700;
 }
 
 .k4-table {
@@ -335,21 +336,24 @@ main {
 
 .k4-table td {
     padding: 12px 8px;
-    border-bottom: 1px solid rgba(251, 191, 36, 0.3);
+    border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+    color: var(--text);
 }
 
 .k4-table td:first-child {
     font-weight: 500;
+    color: var(--text);
 }
 
 .k4-table td:last-child {
     text-align: right;
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
     font-weight: 600;
+    color: var(--text);
 }
 
 .k4-table .total-row {
-    background: rgba(251, 191, 36, 0.2);
+    background: rgba(37, 99, 235, 0.1);
     font-size: 1.1em;
 }
 
@@ -357,6 +361,7 @@ main {
     padding: 18px 8px;
     font-weight: 700;
     border-bottom: none;
+    color: var(--text);
 }
 
 .info-box {
