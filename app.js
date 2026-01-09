@@ -107,6 +107,7 @@ function processCSV(data, filename) {
 
     displayPreview(sellTransactions, { totalPL, gains, losses, year });
     displayK4Summary({ totalPL, gains, losses, year, count: sellTransactions.length });
+    prepareK4Data(sellTransactions, year);
 
     // Update upload area
     document.getElementById('uploadArea').innerHTML = `
@@ -249,10 +250,10 @@ function displayK4Summary(stats) {
     document.getElementById('k4Summary').innerHTML = html;
 }
 
-function downloadK4Excel() {
-    if (!sellTransactions) return;
+function prepareK4Data(transactions, year) {
+    if (!transactions) return;
 
-    const year = extractYear('', sellTransactions[0].time);
+    const sellTransactions = transactions;
 
     // Create K4 Detailed sheet
     const k4Detailed = sellTransactions.map(t => {
