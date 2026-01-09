@@ -5,253 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Guide - Trading 212 to Swedish K4 Converter</title>
     <meta name="description" content="Complete guide for converting Trading 212 statements to Swedish K4 tax format. Step-by-step instructions for Swedish investors.">
-    <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇸🇪</text></svg>">
-    <style>
-        .guide-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 30px 60px;
-        }
 
-        .guide-header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .guide-header h1 {
-            font-size: 2.5em;
-            color: var(--text);
-            margin-bottom: 12px;
-            font-weight: 700;
-        }
-
-        .guide-header p {
-            font-size: 1.15em;
-            color: var(--text-light);
-        }
-
-        .guide-section {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .guide-section h2 {
-            color: var(--primary);
-            margin-bottom: 20px;
-            font-size: 1.6em;
-            font-weight: 700;
-        }
-
-        .guide-section h3 {
-            color: var(--text);
-            margin: 24px 0 12px 0;
-            font-size: 1.2em;
-            font-weight: 600;
-        }
-
-        .guide-section p {
-            line-height: 1.8;
-            color: var(--text);
-            margin: 12px 0;
-        }
-
-        .guide-section ul, .guide-section ol {
-            margin: 16px 0 16px 24px;
-            line-height: 1.8;
-        }
-
-        .guide-section li {
-            margin: 10px 0;
-            color: var(--text);
-        }
-
-        .guide-section strong {
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .step-list {
-            counter-reset: step;
-            list-style: none;
-            margin-left: 0;
-        }
-
-        .step-list li {
-            counter-increment: step;
-            padding-left: 50px;
-            position: relative;
-            margin: 20px 0;
-        }
-
-        .step-list li::before {
-            content: counter(step);
-            position: absolute;
-            left: 0;
-            top: 0;
-            background: var(--primary);
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9em;
-        }
-
-        .highlight-box,
-        .warning-box,
-        .success-box {
-            background: var(--bg-alt);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--primary);
-            padding: 20px 24px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .highlight-box strong,
-        .warning-box strong,
-        .success-box strong {
-            color: var(--primary);
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .highlight-box p,
-        .warning-box p,
-        .success-box p,
-        .highlight-box ul,
-        .warning-box ul,
-        .success-box ul {
-            color: var(--text);
-        }
-
-        .guide-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .guide-table th {
-            background: var(--primary);
-            color: white;
-            padding: 14px;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .guide-table td {
-            padding: 14px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .guide-table tr:hover {
-            background: var(--bg-alt);
-        }
-
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: var(--primary);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin: 30px auto;
-            display: block;
-            width: fit-content;
-        }
-
-        .back-button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        code {
-            background: var(--bg-alt);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-            font-size: 0.9em;
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            .guide-container {
-                padding: 30px 20px;
-            }
-
-            .guide-header h1 {
-                font-size: 2em;
-            }
-
-            .guide-section {
-                padding: 24px 20px;
-            }
-
-            .step-list li {
-                padding-left: 45px;
-            }
-
-            .step-list li::before {
-                width: 28px;
-                height: 28px;
-                font-size: 0.85em;
-            }
-        }
-    </style>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <header class="hero">
-            <div class="hero-content">
-                <h1>📖 User Guide</h1>
-                <p class="hero-subtitle">Everything you need to know about converting Trading 212 to K4</p>
+<body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen">
+    <div class="max-w-5xl mx-auto min-h-screen bg-white shadow-2xl">
+        <!-- Hero Section -->
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white relative overflow-hidden">
+            <div class="absolute inset-0 bg-black opacity-10"></div>
+            <div class="relative z-10 px-6 py-16 md:py-20 text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">📖 User Guide</h1>
+                <p class="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto">
+                    Everything you need to know about converting Trading 212 to K4
+                </p>
             </div>
+            <div class="h-8 bg-white rounded-t-3xl relative -mb-1"></div>
         </header>
 
-        <div class="guide-container">
+        <main class="max-w-4xl mx-auto px-6 py-12 md:px-8">
             <!-- Quick Start -->
-            <div class="guide-section">
-                <h2>🚀 Quick Start</h2>
-                <ol class="step-list">
-                    <li>
-                        <strong>Export CSV from Trading 212</strong><br>
-                        <span style="color: var(--text-light);">Log in → History → Statements → Select year → Export as CSV</span>
-                    </li>
-                    <li>
-                        <strong>Upload to Converter</strong><br>
-                        <span style="color: var(--text-light);">Visit the <a href="index.html">converter</a> and drop your CSV file</span>
-                    </li>
-                    <li>
-                        <strong>Download K4 File</strong><br>
-                        <span style="color: var(--text-light);">Click the blue download button for your K4 Excel file</span>
-                    </li>
-                    <li>
-                        <strong>File with Skatteverket</strong><br>
-                        <span style="color: var(--text-light);">Use Sheet 2 from the Excel file to complete your tax return</span>
-                    </li>
-                </ol>
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-8">🚀 Quick Start</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Export CSV from Trading 212</h3>
+                            <p class="text-gray-600">Log in → History → Statements → Select year → Export as CSV</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Upload to Converter</h3>
+                            <p class="text-gray-600">Visit the <a href="index.html" class="text-blue-600 hover:underline">converter</a> and drop your CSV file</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Download K4 File</h3>
+                            <p class="text-gray-600">Click the blue download button for your K4 Excel file</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">File with Skatteverket</h3>
+                            <p class="text-gray-600">Use Sheet 2 from the Excel file to complete your tax return</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Export from Trading 212 -->
-            <div class="guide-section">
-                <h2>📥 How to Export from Trading 212</h2>
+            <!-- Export Instructions -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">📥 How to Export from Trading 212</h2>
 
-                <h3>Web Platform</h3>
-                <ol>
-                    <li>Log in to <a href="https://www.trading212.com" target="_blank">trading212.com</a></li>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Web Platform</h3>
+                <ol class="list-decimal list-inside space-y-2 mb-6 text-gray-700">
+                    <li>Log in to <a href="https://www.trading212.com" target="_blank" class="text-blue-600 hover:underline">trading212.com</a></li>
                     <li>Click <strong>History</strong> in the menu</li>
                     <li>Select <strong>Statements</strong></li>
                     <li>Choose date range (e.g., 2024-01-01 to 2024-12-31)</li>
@@ -259,210 +74,234 @@
                     <li>Select <strong>CSV format</strong> (NOT PDF!)</li>
                 </ol>
 
-                <h3>Mobile App</h3>
-                <ol>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Mobile App</h3>
+                <ol class="list-decimal list-inside space-y-2 mb-6 text-gray-700">
                     <li>Open Trading 212 app</li>
                     <li>Tap <strong>More</strong> → <strong>History</strong></li>
                     <li>Tap filter icon and select date range</li>
                     <li>Tap <strong>Export</strong> → Choose <strong>CSV</strong></li>
                 </ol>
 
-                <div class="warning-box">
-                    <strong>⚠️ Important:</strong> Make sure you export as <strong>CSV</strong>, not PDF. PDF statements cannot be processed automatically.
+                <div class="bg-gray-50 border-l-4 border-blue-500 p-4 rounded">
+                    <p class="text-sm text-gray-700"><strong class="text-blue-700">⚠️ Important:</strong> Make sure you export as <strong>CSV</strong>, not PDF. PDF statements cannot be processed automatically.</p>
                 </div>
             </div>
 
             <!-- Understanding K4 Output -->
-            <div class="guide-section">
-                <h2>📊 Understanding Your K4 File</h2>
-                <p>The generated Excel file contains 3 sheets:</p>
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">📊 Understanding Your K4 File</h2>
+                <p class="text-gray-700 mb-6">The generated Excel file contains 3 sheets:</p>
 
-                <div class="highlight-box">
-                    <h3 style="margin-top: 0;">Sheet 1: K4 Detaljerad</h3>
-                    <p>Every single transaction listed separately. Use this if you want complete transparency.</p>
+                <div class="space-y-4">
+                    <div class="bg-gray-50 border-l-4 border-blue-500 p-5 rounded">
+                        <h3 class="font-bold text-gray-900 text-lg mb-2">Sheet 1: K4 Detaljerad</h3>
+                        <p class="text-gray-700">Every single transaction listed separately. Use this if you want complete transparency.</p>
+                    </div>
+
+                    <div class="bg-gray-50 border-l-4 border-blue-500 p-5 rounded">
+                        <h3 class="font-bold text-gray-900 text-lg mb-2">Sheet 2: K4 Sammanställning ⭐</h3>
+                        <p class="text-gray-700">Transactions grouped by security. <strong>This is what you should use for filing</strong> - it's cleaner and easier to verify.</p>
+                    </div>
+
+                    <div class="bg-gray-50 border-l-4 border-blue-500 p-5 rounded">
+                        <h3 class="font-bold text-gray-900 text-lg mb-2">Sheet 3: Sammanfattning</h3>
+                        <p class="text-gray-700">Summary totals that go into the K4 form boxes.</p>
+                    </div>
                 </div>
 
-                <div class="success-box">
-                    <h3 style="margin-top: 0;">Sheet 2: K4 Sammanställning ⭐ Recommended</h3>
-                    <p>Transactions grouped by security. <strong>This is what you should use for filing</strong> - it's cleaner and easier to verify.</p>
+                <h3 class="text-xl font-bold text-gray-900 mt-8 mb-4">What Each Column Means</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-blue-600 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-semibold">Swedish Name</th>
+                                <th class="px-4 py-3 text-left font-semibold">English</th>
+                                <th class="px-4 py-3 text-left font-semibold">What It Means</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b border-gray-200">
+                                <td class="px-4 py-3 font-semibold">Värdepapper</td>
+                                <td class="px-4 py-3">Security</td>
+                                <td class="px-4 py-3">Stock name with ISIN code</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="px-4 py-3 font-semibold">Antal</td>
+                                <td class="px-4 py-3">Quantity</td>
+                                <td class="px-4 py-3">How many shares you sold</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="px-4 py-3 font-semibold">Försäljningspris</td>
+                                <td class="px-4 py-3">Sale price</td>
+                                <td class="px-4 py-3">What you got (in SEK)</td>
+                            </tr>
+                            <tr class="border-b border-gray-200">
+                                <td class="px-4 py-3 font-semibold">Omkostnadsbelopp</td>
+                                <td class="px-4 py-3">Acquisition cost</td>
+                                <td class="px-4 py-3">What you paid (in SEK)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-3 font-semibold">Vinst/Förlust</td>
+                                <td class="px-4 py-3">Profit/Loss</td>
+                                <td class="px-4 py-3">Sale price minus cost</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="highlight-box">
-                    <h3 style="margin-top: 0;">Sheet 3: Sammanfattning</h3>
-                    <p>Summary totals that go into the K4 form boxes.</p>
-                </div>
-
-                <h3>What Each Column Means</h3>
-                <table class="guide-table">
-                    <thead>
-                        <tr>
-                            <th>Swedish Name</th>
-                            <th>English</th>
-                            <th>What It Means</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Värdepapper</strong></td>
-                            <td>Security</td>
-                            <td>Stock name with ISIN code</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Antal</strong></td>
-                            <td>Quantity</td>
-                            <td>How many shares you sold</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Försäljningspris</strong></td>
-                            <td>Sale price</td>
-                            <td>What you got (in SEK)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Omkostnadsbelopp</strong></td>
-                            <td>Acquisition cost</td>
-                            <td>What you paid (in SEK)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Vinst/Förlust</strong></td>
-                            <td>Profit/Loss</td>
-                            <td>Sale price minus cost</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
 
-            <!-- Filing with Skatteverket -->
-            <div class="guide-section">
-                <h2>📝 Filing with Skatteverket</h2>
+            <!-- Filing Instructions -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-8">📝 Filing with Skatteverket</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Visit Skatteverket</h3>
+                            <p class="text-gray-600">Go to <a href="https://www.skatteverket.se" target="_blank" class="text-blue-600 hover:underline">skatteverket.se</a> and log in with BankID</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Open Tax Return</h3>
+                            <p class="text-gray-600">Find "Inkomstdeklaration 2025 (inkomståret 2024)"</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Navigate to K4</h3>
+                            <p class="text-gray-600">Go to "Bilaga K4 - Värdepapper"</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Select Part B</h3>
+                            <p class="text-gray-600">Choose "K4 Bilaga B - Utländska aktier och värdepapper"</p>
+                            <p class="text-gray-500 text-sm">(All Trading 212 stocks are foreign)</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">5</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Enter Your Data</h3>
+                            <p class="text-gray-600">Copy from Excel Sheet 2 (K4 Sammanställning)</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">6</div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 text-lg mb-1">Verify & Submit</h3>
+                            <p class="text-gray-600">Check totals match, submit before <strong class="text-blue-600">May 2, 2025</strong></p>
+                        </div>
+                    </div>
+                </div>
 
-                <ol class="step-list">
-                    <li>
-                        <strong>Visit Skatteverket</strong><br>
-                        Go to <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a> and log in with BankID
-                    </li>
-                    <li>
-                        <strong>Open Tax Return</strong><br>
-                        Find "Inkomstdeklaration 2025 (inkomståret 2024)"
-                    </li>
-                    <li>
-                        <strong>Navigate to K4</strong><br>
-                        Go to "Bilaga K4 - Värdepapper"
-                    </li>
-                    <li>
-                        <strong>Select Part B</strong><br>
-                        Choose "K4 Bilaga B - Utländska aktier och värdepapper"<br>
-                        <span style="color: var(--text-light); font-size: 0.95em;">(All Trading 212 stocks are foreign)</span>
-                    </li>
-                    <li>
-                        <strong>Enter Your Data</strong><br>
-                        Copy from Excel Sheet 2 (K4 Sammanställning)
-                    </li>
-                    <li>
-                        <strong>Enter Summary Totals</strong><br>
-                        Use Sheet 3 values for Box 3.3, 3.4, and 3.5
-                    </li>
-                    <li>
-                        <strong>Verify & Submit</strong><br>
-                        Check totals match, submit before <strong>May 2, 2025</strong>
-                    </li>
-                </ol>
-
-                <div class="highlight-box">
-                    <strong>💡 Pro Tip:</strong> Use Sheet 2 (K4 Sammanställning) instead of Sheet 1. It groups multiple sales of the same stock together, making it much easier to enter and verify.
+                <div class="mt-8 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                    <p class="text-sm text-gray-700"><strong class="text-blue-700">💡 Pro Tip:</strong> Use Sheet 2 (K4 Sammanställning) instead of Sheet 1. It groups multiple sales of the same stock together, making it much easier to enter and verify.</p>
                 </div>
             </div>
 
             <!-- Tax Basics -->
-            <div class="guide-section">
-                <h2>💰 Swedish Capital Gains Tax Basics</h2>
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">💰 Swedish Capital Gains Tax</h2>
 
-                <h3>Tax Rate</h3>
-                <p>Capital gains from stocks and ETFs are taxed at <strong>30%</strong>.</p>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Tax Rate</h3>
+                <p class="text-gray-700 mb-6">Capital gains from stocks and ETFs are taxed at <strong>30%</strong>.</p>
 
-                <h3>How It Works</h3>
-                <ul>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">How It Works</h3>
+                <ul class="space-y-2 mb-6 text-gray-700">
                     <li>✓ Profits from stock sales = Capital Gains</li>
                     <li>✓ Losses can be deducted from gains in the same year</li>
                     <li>✓ Net result is taxed at 30%</li>
                     <li>✓ Losses exceeding gains can offset other capital income</li>
                 </ul>
 
-                <h3>Example</h3>
-                <div class="highlight-box">
-                    <p><strong>Your trades:</strong></p>
-                    <ul style="margin: 12px 0;">
-                        <li>Total gains: 10,000 SEK</li>
-                        <li>Total losses: -1,000 SEK</li>
-                        <li><strong>Net result: 9,000 SEK</strong></li>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Example</h3>
+                <div class="bg-gray-50 border-l-4 border-blue-500 p-6 rounded">
+                    <p class="font-semibold text-gray-900 mb-3">Your trades:</p>
+                    <ul class="space-y-1 text-gray-700 mb-4">
+                        <li>• Total gains: 10,000 SEK</li>
+                        <li>• Total losses: -1,000 SEK</li>
+                        <li>• <strong>Net result: 9,000 SEK</strong></li>
                     </ul>
-                    <p style="margin-top: 16px;"><strong>Tax calculation:</strong></p>
-                    <p>9,000 SEK × 30% = <strong>2,700 SEK tax</strong></p>
+                    <p class="font-semibold text-gray-900 mb-2">Tax calculation:</p>
+                    <p class="text-gray-700">9,000 SEK × 30% = <strong class="text-blue-600 text-lg">2,700 SEK tax</strong></p>
                 </div>
             </div>
 
-            <!-- Important Deadlines -->
-            <div class="guide-section">
-                <h2>📅 Important Deadlines</h2>
-
-                <table class="guide-table">
-                    <thead>
-                        <tr>
-                            <th>Tax Year</th>
-                            <th>Filing Method</th>
-                            <th>Deadline</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2024</td>
-                            <td>Online</td>
-                            <td><strong>May 2, 2025</strong></td>
-                        </tr>
-                        <tr>
-                            <td>2024</td>
-                            <td>Paper</td>
-                            <td>April 2, 2025</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="success-box">
-                    <strong>✓ Tip:</strong> File online - you get an extra month and it's easier!
+            <!-- Deadlines -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">📅 Important Deadlines</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-blue-600 text-white">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-semibold">Tax Year</th>
+                                <th class="px-6 py-3 text-left font-semibold">Filing Method</th>
+                                <th class="px-6 py-3 text-left font-semibold">Deadline</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b border-gray-200">
+                                <td class="px-6 py-4">2024</td>
+                                <td class="px-6 py-4">Online</td>
+                                <td class="px-6 py-4"><strong class="text-blue-600">May 2, 2025</strong></td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4">2024</td>
+                                <td class="px-6 py-4">Paper</td>
+                                <td class="px-6 py-4">April 2, 2025</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                    <p class="text-sm text-gray-700"><strong class="text-blue-700">✓ Tip:</strong> File online - you get an extra month and it's easier!</p>
                 </div>
             </div>
 
             <!-- Troubleshooting -->
-            <div class="guide-section">
-                <h2>🔧 Troubleshooting</h2>
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">🔧 Troubleshooting</h2>
 
-                <h3>"No sell transactions found"</h3>
-                <p><strong>Solutions:</strong></p>
-                <ul>
-                    <li>Check you exported the correct date range</li>
-                    <li>Make sure the file is from Trading 212</li>
-                    <li>If you only bought stocks (no sells), you don't need K4</li>
-                </ul>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">"No sell transactions found"</h3>
+                        <p class="text-gray-700 mb-2"><strong>Solutions:</strong></p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600">
+                            <li>Check you exported the correct date range</li>
+                            <li>Make sure the file is from Trading 212</li>
+                            <li>If you only bought stocks (no sells), you don't need K4</li>
+                        </ul>
+                    </div>
 
-                <h3>Total doesn't match my calculation</h3>
-                <p><strong>This is normal:</strong></p>
-                <ul>
-                    <li>Trading 212 uses the average cost method</li>
-                    <li>Currency conversion timing may differ</li>
-                    <li>Broker fees are included</li>
-                </ul>
-                <p><strong>Solution:</strong> Use Trading 212's reported P/L - it's official and correct.</p>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Total doesn't match my calculation</h3>
+                        <p class="text-gray-700 mb-2"><strong>This is normal:</strong></p>
+                        <ul class="list-disc list-inside space-y-1 text-gray-600 mb-3">
+                            <li>Trading 212 uses the average cost method</li>
+                            <li>Currency conversion timing may differ</li>
+                            <li>Broker fees are included</li>
+                        </ul>
+                        <p class="text-gray-700"><strong>Solution:</strong> Use Trading 212's reported P/L - it's official and correct.</p>
+                    </div>
 
-                <h3>I have trades from multiple years</h3>
-                <p><strong>Solution:</strong> Export and process each year separately. File separate K4 forms for each tax year.</p>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">I have trades from multiple years</h3>
+                        <p class="text-gray-700"><strong>Solution:</strong> Export and process each year separately. File separate K4 forms for each tax year.</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Privacy & Security -->
-            <div class="guide-section">
-                <h2>🔒 Privacy & Security</h2>
-
-                <div class="success-box">
-                    <p><strong>Your data is 100% safe.</strong></p>
-                    <ul style="margin: 12px 0;">
+            <!-- Privacy -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">🔒 Privacy & Security</h2>
+                <div class="bg-gray-50 border-l-4 border-blue-500 p-6 rounded mb-4">
+                    <p class="font-semibold text-gray-900 mb-3">Your data is 100% safe.</p>
+                    <ul class="space-y-2 text-gray-700">
                         <li>✓ All processing happens in your browser</li>
                         <li>✓ No data uploaded to any server</li>
                         <li>✓ No data stored or logged</li>
@@ -470,49 +309,51 @@
                         <li>✓ Open source - verify the code</li>
                     </ul>
                 </div>
-
-                <p>This is a static website running pure JavaScript. Open your browser's Network tab while using the tool - you'll see no data is transmitted!</p>
+                <p class="text-gray-600 text-sm">This is a static website running pure JavaScript. Open your browser's Network tab while using the tool - you'll see no data is transmitted!</p>
             </div>
 
             <!-- Getting Help -->
-            <div class="guide-section">
-                <h2>📞 Getting Help</h2>
+            <div class="bg-white border border-gray-200 rounded-2xl p-8 mb-8 shadow-sm">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">📞 Getting Help</h2>
 
-                <h3>Skatteverket (Swedish Tax Agency)</h3>
-                <ul>
-                    <li><strong>Phone:</strong> 0771-567 567 (Mon-Fri 8:00-16:30)</li>
-                    <li><strong>Website:</strong> <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a></li>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Skatteverket (Swedish Tax Agency)</h3>
+                <ul class="space-y-2 mb-6 text-gray-700">
+                    <li>• Phone: <strong>0771-567 567</strong> (Mon-Fri 8:00-16:30)</li>
+                    <li>• Website: <a href="https://www.skatteverket.se" target="_blank" class="text-blue-600 hover:underline">skatteverket.se</a></li>
                 </ul>
 
-                <h3>Trading 212 Support</h3>
-                <ul>
-                    <li><strong>Email:</strong> info@trading212.com</li>
-                    <li><strong>Help Center:</strong> <a href="https://helpcentre.trading212.com" target="_blank">helpcentre.trading212.com</a></li>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Trading 212 Support</h3>
+                <ul class="space-y-2 mb-6 text-gray-700">
+                    <li>• Email: info@trading212.com</li>
+                    <li>• Help Center: <a href="https://helpcentre.trading212.com" target="_blank" class="text-blue-600 hover:underline">helpcentre.trading212.com</a></li>
                 </ul>
 
-                <h3>Tool Issues</h3>
-                <ul>
-                    <li><strong>GitHub:</strong> <a href="https://github.com/sedflix/trading212-k4-converter/issues" target="_blank">Report an issue</a></li>
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Tool Issues</h3>
+                <ul class="space-y-2 text-gray-700">
+                    <li>• GitHub: <a href="https://github.com/sedflix/trading212-k4-converter/issues" target="_blank" class="text-blue-600 hover:underline">Report an issue</a></li>
                 </ul>
             </div>
 
-            <!-- Back to Converter -->
-            <a href="index.html" class="back-button">
-                ← Back to Converter
-            </a>
-        </div>
+            <!-- Back Button -->
+            <div class="text-center">
+                <a href="index.html" class="inline-block bg-blue-600 text-white font-bold px-8 py-4 rounded-xl hover:bg-blue-700 transition-all hover:shadow-lg hover:-translate-y-1">
+                    ← Back to Converter
+                </a>
+            </div>
+        </main>
 
-        <footer>
-            <div class="footer-content">
-                <p class="footer-links">
-                    <a href="index.html">Converter</a>
-                    <a href="https://github.com/sedflix/trading212-k4-converter" target="_blank">GitHub</a>
-                    <a href="https://www.skatteverket.se" target="_blank">Skatteverket</a>
+        <!-- Footer -->
+        <footer class="bg-gray-50 border-t border-gray-200 px-6 py-10 text-center">
+            <div class="max-w-3xl mx-auto">
+                <div class="flex flex-wrap gap-6 justify-center mb-4 text-sm">
+                    <a href="index.html" class="text-gray-700 hover:text-blue-600 font-medium">Converter</a>
+                    <a href="https://github.com/sedflix/trading212-k4-converter" target="_blank" class="text-gray-700 hover:text-blue-600 font-medium">GitHub</a>
+                    <a href="https://www.skatteverket.se" target="_blank" class="text-gray-700 hover:text-blue-600 font-medium">Skatteverket</a>
+                </div>
+                <p class="text-gray-600 text-sm mb-3">
+                    <strong>100% Private</strong> • All processing in your browser
                 </p>
-                <p class="footer-note">
-                    <strong>100% Private</strong> - All processing in your browser
-                </p>
-                <p class="footer-disclaimer">
+                <p class="text-gray-500 text-xs">
                     Disclaimer: Verify all calculations before filing. Not affiliated with Trading 212 or Skatteverket.
                 </p>
             </div>

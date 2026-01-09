@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function handleFile(file) {
     const uploadArea = document.getElementById('uploadArea');
-    uploadArea.innerHTML = '<div class="loading">Processing...</div>';
+    uploadArea.innerHTML = '<div class="text-blue-600 font-semibold text-xl">Processing...</div>';
 
     Papa.parse(file, {
         header: true,
@@ -110,9 +110,9 @@ function processCSV(data, filename) {
 
     // Update upload area
     document.getElementById('uploadArea').innerHTML = `
-        <div class="upload-success">
+        <div class="text-green-600 font-semibold text-xl">
             ✅ File loaded: ${filename}<br>
-            Found ${sellTransactions.length} sell transactions
+            <span class="text-lg">Found ${sellTransactions.length} sell transactions</span>
         </div>
     `;
 
@@ -149,23 +149,23 @@ function extractYear(filename, firstTransactionTime) {
 }
 
 function displayPreview(transactions, stats) {
-    // Stats
+    // Stats with Tailwind classes
     const statsHTML = `
-        <div class="stat-card">
-            <div class="stat-value">${transactions.length}</div>
-            <div class="stat-label">Sell Transactions</div>
+        <div class="bg-white border-2 border-gray-200 rounded-xl p-6 text-center hover:shadow-lg transition-all">
+            <div class="text-3xl font-bold text-gray-900 mb-2">${transactions.length}</div>
+            <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Transactions</div>
         </div>
-        <div class="stat-card ${stats.totalPL >= 0 ? 'positive' : 'negative'}">
-            <div class="stat-value">${formatSEK(stats.totalPL)}</div>
-            <div class="stat-label">Net Profit/Loss</div>
+        <div class="bg-gradient-to-br ${stats.totalPL >= 0 ? 'from-green-50 to-emerald-50 border-green-300' : 'from-red-50 to-rose-50 border-red-300'} border-2 rounded-xl p-6 text-center hover:shadow-lg transition-all">
+            <div class="text-3xl font-bold ${stats.totalPL >= 0 ? 'text-green-600' : 'text-red-600'} mb-2">${formatSEK(stats.totalPL)}</div>
+            <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Net P/L</div>
         </div>
-        <div class="stat-card positive">
-            <div class="stat-value">${formatSEK(stats.gains)}</div>
-            <div class="stat-label">Total Gains</div>
+        <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6 text-center hover:shadow-lg transition-all">
+            <div class="text-3xl font-bold text-green-600 mb-2">${formatSEK(stats.gains)}</div>
+            <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Gains</div>
         </div>
-        <div class="stat-card negative">
-            <div class="stat-value">${formatSEK(Math.abs(stats.losses))}</div>
-            <div class="stat-label">Total Losses</div>
+        <div class="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-300 rounded-xl p-6 text-center hover:shadow-lg transition-all">
+            <div class="text-3xl font-bold text-red-600 mb-2">${formatSEK(Math.abs(stats.losses))}</div>
+            <div class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Losses</div>
         </div>
     `;
     document.getElementById('previewStats').innerHTML = statsHTML;
@@ -178,72 +178,70 @@ function displayPreview(transactions, stats) {
     ];
 
     let tableHTML = `
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Instrument</th>
-                    <th>ISIN</th>
-                    <th>Quantity</th>
-                    <th>Total (SEK)</th>
-                    <th>P/L (SEK)</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-blue-600 text-white">
+                    <tr>
+                        <th class="px-4 py-3 text-left font-semibold">Date</th>
+                        <th class="px-4 py-3 text-left font-semibold">Instrument</th>
+                        <th class="px-4 py-3 text-left font-semibold">ISIN</th>
+                        <th class="px-4 py-3 text-right font-semibold">Quantity</th>
+                        <th class="px-4 py-3 text-right font-semibold">Total (SEK)</th>
+                        <th class="px-4 py-3 text-right font-semibold">P/L (SEK)</th>
+                    </tr>
+                </thead>
+                <tbody>
     `;
 
     previewTransactions.forEach(t => {
         if (t.separator) {
-            tableHTML += `<tr class="separator"><td colspan="6">... ${transactions.length - 15} more transactions ...</td></tr>`;
+            tableHTML += `<tr><td colspan="6" class="px-4 py-4 text-center italic text-gray-500 bg-gray-100">... ${transactions.length - 15} more transactions ...</td></tr>`;
         } else {
-            const plClass = t.realisedPL >= 0 ? 'positive' : 'negative';
+            const plColorClass = t.realisedPL >= 0 ? 'text-green-600' : 'text-red-600';
             tableHTML += `
-                <tr>
-                    <td>${formatDate(t.time)}</td>
-                    <td><strong>${t.instrument}</strong></td>
-                    <td class="small">${t.isin}</td>
-                    <td class="number">${t.quantity.toFixed(6)}</td>
-                    <td class="number">${formatSEK(t.totalSEK)}</td>
-                    <td class="number ${plClass}">${formatSEK(t.realisedPL)}</td>
+                <tr class="border-b border-gray-200 hover:bg-gray-50">
+                    <td class="px-4 py-3">${formatDate(t.time)}</td>
+                    <td class="px-4 py-3 font-semibold">${t.instrument}</td>
+                    <td class="px-4 py-3 text-gray-600 text-xs">${t.isin}</td>
+                    <td class="px-4 py-3 text-right font-mono">${t.quantity.toFixed(6)}</td>
+                    <td class="px-4 py-3 text-right font-mono">${formatSEK(t.totalSEK)}</td>
+                    <td class="px-4 py-3 text-right font-mono font-semibold ${plColorClass}">${formatSEK(t.realisedPL)}</td>
                 </tr>
             `;
         }
     });
 
-    tableHTML += '</tbody></table>';
+    tableHTML += '</tbody></table></div>';
     document.getElementById('previewTable').innerHTML = tableHTML;
 }
 
 function displayK4Summary(stats) {
     const html = `
-        <div class="k4-box">
-            <h3>Swedish K4 Summary (Tax Year ${stats.year})</h3>
-            <table class="k4-table">
-                <tr>
-                    <td>Number of transactions:</td>
-                    <td><strong>${stats.count}</strong></td>
-                </tr>
-                <tr>
-                    <td>Box 3.3 - Total Gains (Vinster):</td>
-                    <td><strong class="positive">${formatSEK(stats.gains)}</strong></td>
-                </tr>
-                <tr>
-                    <td>Box 3.4 - Total Losses (Förluster):</td>
-                    <td><strong class="negative">${formatSEK(Math.abs(stats.losses))}</strong></td>
-                </tr>
-                <tr class="total-row">
-                    <td>Box 3.5 - Net Result (Nettoresultat):</td>
-                    <td><strong class="${stats.totalPL >= 0 ? 'positive' : 'negative'}">${formatSEK(stats.totalPL)}</strong></td>
-                </tr>
-                <tr>
-                    <td>Estimated tax (30%):</td>
-                    <td><strong>~${formatSEK(stats.totalPL * 0.3)}</strong></td>
-                </tr>
-            </table>
+        <h3 class="text-2xl font-bold text-blue-900 mb-6">Swedish K4 Summary (Tax Year ${stats.year})</h3>
+        <div class="space-y-3">
+            <div class="flex justify-between py-3 border-b border-blue-200">
+                <span class="text-gray-700 font-medium">Number of transactions:</span>
+                <span class="font-bold text-gray-900">${stats.count}</span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-blue-200">
+                <span class="text-gray-700 font-medium">Box 3.3 - Total Gains (Vinster):</span>
+                <span class="font-bold text-green-600">${formatSEK(stats.gains)}</span>
+            </div>
+            <div class="flex justify-between py-3 border-b border-blue-200">
+                <span class="text-gray-700 font-medium">Box 3.4 - Total Losses (Förluster):</span>
+                <span class="font-bold text-red-600">${formatSEK(Math.abs(stats.losses))}</span>
+            </div>
+            <div class="flex justify-between py-4 bg-blue-100 rounded-lg px-4 mt-2">
+                <span class="text-gray-900 font-bold">Box 3.5 - Net Result (Nettoresultat):</span>
+                <span class="font-bold text-xl ${stats.totalPL >= 0 ? 'text-green-600' : 'text-red-600'}">${formatSEK(stats.totalPL)}</span>
+            </div>
+            <div class="flex justify-between py-3">
+                <span class="text-gray-700 font-medium">Estimated tax (30%):</span>
+                <span class="font-bold text-gray-900">~${formatSEK(stats.totalPL * 0.3)}</span>
+            </div>
         </div>
-        <div class="info-box">
-            <strong>⚠️ Important:</strong> All Trading 212 securities are foreign.
-            Use <strong>K4 Bilaga B (Part B)</strong> - Foreign securities only.
+        <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+            <p class="text-sm text-gray-700"><strong class="text-blue-700">⚠️ Important:</strong> All Trading 212 securities are foreign. Use <strong>K4 Bilaga B (Part B)</strong> - Foreign securities only.</p>
         </div>
     `;
     document.getElementById('k4Summary').innerHTML = html;
@@ -394,9 +392,9 @@ function downloadOriginalExcel() {
 
 function resetUploadArea() {
     document.getElementById('uploadArea').innerHTML = `
-        <div class="upload-icon">📁</div>
-        <p class="upload-text">Click to select CSV file or drag & drop here</p>
-        <p class="upload-hint">Accepts: .csv files from Trading 212</p>
+        <div class="text-7xl mb-6">📁</div>
+        <p class="text-2xl font-semibold text-gray-900 mb-2">Drop your Trading 212 CSV here</p>
+        <p class="text-gray-500">or click to browse</p>
     `;
 }
 
@@ -434,17 +432,13 @@ function formatDateISO(dateStr) {
 }
 
 function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'notification';
+    const notification = document.getElementById('notification');
     notification.textContent = message;
-    document.body.appendChild(notification);
+    notification.classList.remove('translate-y-32', 'opacity-0');
+    notification.classList.add('translate-y-0', 'opacity-100');
 
     setTimeout(() => {
-        notification.classList.add('show');
-    }, 100);
-
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
+        notification.classList.add('translate-y-32', 'opacity-0');
+        notification.classList.remove('translate-y-0', 'opacity-100');
     }, 3000);
 }
