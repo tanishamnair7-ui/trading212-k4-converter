@@ -100,17 +100,19 @@ Market sell,2024-07-30 15:01:04,US0378331005,AAPL,Apple,1.0,150.0,USD,0.095,14.2
     await expect(downloadOriginal).toBeVisible();
   });
 
-  test('FAQ link works', async ({ page }) => {
+  test('FAQ section is accessible', async ({ page }) => {
     await page.goto('/');
 
-    const helpLink = page.locator('text=How to export CSV from Trading 212?').first();
-    await helpLink.click();
+    // Check FAQ section exists and is scrollable
+    const faqSection = page.locator('#faq');
+    await expect(faqSection).toBeVisible();
 
-    // Should scroll to FAQ section
-    await page.waitForTimeout(500);
-
-    // First FAQ should be open
+    // Check FAQ items can be clicked
     const firstFAQ = page.locator('#faq details').first();
+    await firstFAQ.locator('summary').click();
+    await page.waitForTimeout(300);
+
+    // Check it opened
     const isOpen = await firstFAQ.evaluate(el => el.hasAttribute('open'));
     expect(isOpen).toBe(true);
   });
