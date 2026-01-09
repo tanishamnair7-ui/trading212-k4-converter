@@ -105,28 +105,32 @@
             font-size: 0.9em;
         }
 
-        .highlight-box {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        .highlight-box,
+        .warning-box,
+        .success-box {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
             border-left: 4px solid var(--primary);
             padding: 20px 24px;
             border-radius: 8px;
             margin: 20px 0;
         }
 
-        .warning-box {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid var(--warning);
-            padding: 20px 24px;
-            border-radius: 8px;
-            margin: 20px 0;
+        .highlight-box strong,
+        .warning-box strong,
+        .success-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 8px;
         }
 
-        .success-box {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border-left: 4px solid var(--success);
-            padding: 20px 24px;
-            border-radius: 8px;
-            margin: 20px 0;
+        .highlight-box p,
+        .warning-box p,
+        .success-box p,
+        .highlight-box ul,
+        .warning-box ul,
+        .success-box ul {
+            color: var(--text);
         }
 
         .guide-table {
