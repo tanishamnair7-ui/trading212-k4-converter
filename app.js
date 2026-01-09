@@ -343,6 +343,11 @@ function prepareK4Data(transactions, year) {
 
     // Store for download
     window.k4Workbook = wb;
+    window.k4Data = {
+        detailed: k4Detailed,
+        aggregated: k4Aggregated,
+        summary: summary
+    };
     window.year = year;
 
     // Enable download button
@@ -350,6 +355,18 @@ function prepareK4Data(transactions, year) {
 }
 
 function downloadK4Excel() {
+    const format = document.getElementById('k4Format').value;
+
+    if (format === 'excel') {
+        downloadK4AsExcel();
+    } else if (format === 'pdf') {
+        downloadK4AsPDF();
+    } else if (format === 'csv') {
+        downloadK4AsCSV();
+    }
+}
+
+function downloadK4AsExcel() {
     if (!window.k4Workbook) return;
 
     const filename = `${window.year}_K4_Statement.xlsx`;
@@ -359,7 +376,136 @@ function downloadK4Excel() {
     showNotification(`✅ Downloaded: ${filename}`);
 }
 
+function downloadK4AsPDF() {
+    if (!window.k4Data) return;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
+    const year = window.year || new Date().getFullYear();
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text(`Swedish K4 Tax Statement - ${year}`, 14, 20);
+
+    // Summary section
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('Summary', 14, 32);
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(10);
+
+    const totalGains = sellTransactions.filter(t => t.realisedPL > 0).reduce((sum, t) => sum + t.realisedPL, 0);
+    const totalLosses = sellTransactions.filter(t => t.realisedPL < 0).reduce((sum, t) => sum + t.realisedPL, 0);
+    const totalPL = totalGains + totalLosses;
+
+    doc.text(`Total Transactions: ${sellTransactions.length}`, 14, 40);
+    doc.text(`Box 3.3 - Total Gains: ${formatSEK(totalGains)}`, 14, 46);
+    doc.text(`Box 3.4 - Total Losses: ${formatSEK(Math.abs(totalLosses))}`, 14, 52);
+    doc.text(`Box 3.5 - Net Result: ${formatSEK(totalPL)}`, 14, 58);
+
+    // K4 Detailed table
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('K4 Detailed (K4 Detaljerad)', 14, 70);
+
+    const k4DetailedData = window.k4Data.detailed.map(item => [
+        item['Värdepapper'],
+        item['Antal'].toFixed(6),
+        item['Försäljningspris (SEK)'].toFixed(2),
+        item['Omkostnadsbelopp (SEK)'].toFixed(2),
+        item['Vinst (+) / Förlust (-) (SEK)'].toFixed(2),
+        item['Försäljningsdatum'],
+        item['ISIN']
+    ]);
+
+    doc.autoTable({
+        startY: 75,
+        head: [['Security', 'Quantity', 'Sale Price (SEK)', 'Acquisition Cost (SEK)', 'P/L (SEK)', 'Date', 'ISIN']],
+        body: k4DetailedData,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [63, 81, 181] },
+        columnStyles: {
+            1: { halign: 'right' },
+            2: { halign: 'right' },
+            3: { halign: 'right' },
+            4: { halign: 'right' }
+        }
+    });
+
+    // K4 Aggregated on new page
+    doc.addPage();
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text('K4 Aggregated (K4 Sammanställning) - Recommended', 14, 20);
+
+    const k4AggregatedData = window.k4Data.aggregated.map(item => [
+        item['Värdepapper'],
+        item['Totalt Antal'].toFixed(6),
+        item['Totalt Försäljningspris (SEK)'].toFixed(2),
+        item['Totalt Omkostnadsbelopp (SEK)'].toFixed(2),
+        item['Totalt Vinst/Förlust (SEK)'].toFixed(2),
+        item['Antal Transaktioner'],
+        item['ISIN']
+    ]);
+
+    doc.autoTable({
+        startY: 25,
+        head: [['Security', 'Total Qty', 'Total Sale Price', 'Total Acq. Cost', 'Total P/L', 'Transactions', 'ISIN']],
+        body: k4AggregatedData,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [63, 81, 181] },
+        columnStyles: {
+            1: { halign: 'right' },
+            2: { halign: 'right' },
+            3: { halign: 'right' },
+            4: { halign: 'right' },
+            5: { halign: 'right' }
+        }
+    });
+
+    const filename = `${year}_K4_Statement.pdf`;
+    doc.save(filename);
+
+    showNotification(`✅ Downloaded: ${filename}`);
+}
+
+function downloadK4AsCSV() {
+    if (!window.k4Data) return;
+
+    const year = window.year || new Date().getFullYear();
+
+    // Use aggregated data for CSV (recommended for filing)
+    const csvContent = Papa.unparse(window.k4Data.aggregated);
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${year}_K4_Statement.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification(`✅ Downloaded: ${year}_K4_Statement.csv`);
+}
+
 function downloadOriginalExcel() {
+    const format = document.getElementById('originalFormat').value;
+
+    if (format === 'excel') {
+        downloadOriginalAsExcel();
+    } else if (format === 'pdf') {
+        downloadOriginalAsPDF();
+    } else if (format === 'csv') {
+        downloadOriginalAsCSV();
+    }
+}
+
+function downloadOriginalAsExcel() {
     if (!sellTransactions) return;
 
     const year = window.year || new Date().getFullYear();
@@ -391,6 +537,96 @@ function downloadOriginalExcel() {
     XLSX.writeFile(wb, filename);
 
     showNotification(`✅ Downloaded: ${filename}`);
+}
+
+function downloadOriginalAsPDF() {
+    if (!sellTransactions) return;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4');
+    const year = window.year || new Date().getFullYear();
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text(`Trading 212 Full Statement - ${year}`, 14, 20);
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Total Transactions: ${sellTransactions.length}`, 14, 30);
+
+    // Create table data
+    const tableData = sellTransactions.map(t => [
+        formatDateTime(t.time),
+        t.instrument,
+        t.name,
+        t.isin,
+        t.instrumentType,
+        t.currency,
+        t.quantity.toFixed(6),
+        t.pricePerShare.toFixed(2),
+        t.fxRate.toFixed(4),
+        t.totalSEK.toFixed(2),
+        t.realisedPL.toFixed(2)
+    ]);
+
+    doc.autoTable({
+        startY: 35,
+        head: [['Time', 'Ticker', 'Name', 'ISIN', 'Type', 'Currency', 'Quantity', 'Price/Share', 'FX Rate', 'Total (SEK)', 'P/L (SEK)']],
+        body: tableData,
+        styles: { fontSize: 7 },
+        headStyles: { fillColor: [63, 81, 181] },
+        columnStyles: {
+            6: { halign: 'right' },
+            7: { halign: 'right' },
+            8: { halign: 'right' },
+            9: { halign: 'right' },
+            10: { halign: 'right' }
+        }
+    });
+
+    const filename = `${year}_statement.pdf`;
+    doc.save(filename);
+
+    showNotification(`✅ Downloaded: ${filename}`);
+}
+
+function downloadOriginalAsCSV() {
+    if (!sellTransactions) return;
+
+    const year = window.year || new Date().getFullYear();
+
+    // Create CSV data
+    const csvData = sellTransactions.map(t => ({
+        'EXECUTION TIME': formatDateTime(t.time),
+        'INSTRUMENT': t.instrument,
+        'NAME': t.name,
+        'ISIN': t.isin,
+        'INSTRUMENT TYPE': t.instrumentType,
+        'INSTRUMENT CURRENCY': t.currency,
+        'QUANTITY': t.quantity,
+        'PRICE / SHARE': t.pricePerShare,
+        'FX RATE': t.fxRate,
+        'TRANSACTION CURRENCY': t.transactionCurrency,
+        'TOTAL (SEK)': t.totalSEK,
+        'REALISED P/L': t.realisedPL
+    }));
+
+    const csvContent = Papa.unparse(csvData);
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${year}_statement.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification(`✅ Downloaded: ${year}_statement.csv`);
 }
 
 function resetUploadArea() {
