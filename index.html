@@ -46,12 +46,20 @@
     }
     </script>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
                     colors: {
                         primary: {
                             50: '#eff6ff',
@@ -98,14 +106,17 @@
         <main class="px-6 py-12 md:px-8">
             <!-- Upload Section -->
             <section class="mb-12">
-                <div id="uploadArea" class="border-3 border-dashed border-gray-300 rounded-2xl p-16 md:p-20 text-center cursor-pointer transition-all duration-300 hover:border-blue-500 hover:bg-blue-50 hover:-translate-y-1 hover:shadow-xl bg-gray-50">
-                    <div class="text-7xl mb-6">📁</div>
-                    <p class="text-2xl font-semibold text-gray-900 mb-2">Drop your Trading 212 CSV here</p>
-                    <p class="text-gray-500">or click to browse</p>
+                <div id="uploadArea" class="relative border-4 border-dashed border-blue-400 rounded-3xl p-16 md:p-24 text-center cursor-pointer transition-all duration-300 hover:border-blue-600 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 hover:-translate-y-2 hover:shadow-2xl bg-white shadow-lg ring-4 ring-blue-100 ring-opacity-50">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 opacity-0 hover:opacity-5 transition-opacity duration-300 rounded-3xl"></div>
+                    <div class="relative z-10">
+                        <div class="text-8xl mb-8 animate-bounce">📁</div>
+                        <p class="text-3xl font-bold text-gray-900 mb-3 tracking-tight">Drop your Trading 212 CSV here</p>
+                        <p class="text-lg text-gray-600 font-medium">or click to browse your files</p>
+                    </div>
                     <input type="file" id="fileInput" accept=".csv" class="hidden">
                 </div>
-                <p class="text-center mt-4 text-gray-600 text-sm">
-                    Need help? <a href="#faq" class="text-blue-600 hover:underline font-medium">How to export CSV from Trading 212?</a>
+                <p class="text-center mt-6 text-gray-600 text-base">
+                    Need help? <a href="#faq" class="text-blue-600 hover:text-blue-700 hover:underline font-semibold">How to export CSV from Trading 212?</a>
                 </p>
             </section>
 

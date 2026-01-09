@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function handleFile(file) {
     const uploadArea = document.getElementById('uploadArea');
-    uploadArea.innerHTML = '<div class="text-blue-600 font-semibold text-xl">Processing...</div>';
+    uploadArea.innerHTML = '<div class="relative z-10"><div class="text-blue-600 font-bold text-2xl animate-pulse">Processing...</div></div>';
 
     Papa.parse(file, {
         header: true,
@@ -110,9 +110,11 @@ function processCSV(data, filename) {
 
     // Update upload area
     document.getElementById('uploadArea').innerHTML = `
-        <div class="text-green-600 font-semibold text-xl">
-            ✅ File loaded: ${filename}<br>
-            <span class="text-lg">Found ${sellTransactions.length} sell transactions</span>
+        <div class="relative z-10">
+            <div class="text-7xl mb-6">✅</div>
+            <p class="text-2xl font-bold text-green-600 mb-2">File loaded successfully!</p>
+            <p class="text-lg text-gray-700 font-medium">${filename}</p>
+            <p class="text-base text-gray-600 mt-2">Found ${sellTransactions.length} sell transactions</p>
         </div>
     `;
 
@@ -392,9 +394,11 @@ function downloadOriginalExcel() {
 
 function resetUploadArea() {
     document.getElementById('uploadArea').innerHTML = `
-        <div class="text-7xl mb-6">📁</div>
-        <p class="text-2xl font-semibold text-gray-900 mb-2">Drop your Trading 212 CSV here</p>
-        <p class="text-gray-500">or click to browse</p>
+        <div class="relative z-10">
+            <div class="text-8xl mb-8 animate-bounce">📁</div>
+            <p class="text-3xl font-bold text-gray-900 mb-3 tracking-tight">Drop your Trading 212 CSV here</p>
+            <p class="text-lg text-gray-600 font-medium">or click to browse your files</p>
+        </div>
     `;
 }
 
