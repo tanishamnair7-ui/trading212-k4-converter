@@ -1,6 +1,15 @@
 # Archive folder (development files)
 archive/
 
+# Node.js
+node_modules/
+package-lock.json
+
+# Test results
+playwright-report/
+test-results/
+*.trace.zip
+
 # Python
 venv/
 __pycache__/

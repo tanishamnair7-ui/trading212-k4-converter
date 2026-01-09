@@ -396,9 +396,9 @@ function downloadOriginalExcel() {
 function resetUploadArea() {
     document.getElementById('uploadArea').innerHTML = `
         <div class="relative z-10">
-            <div class="text-8xl mb-8 animate-bounce">📁</div>
-            <p class="text-3xl font-bold text-gray-900 mb-3 tracking-tight">Drop your Trading 212 CSV here</p>
-            <p class="text-lg text-gray-600 font-medium">or click to browse your files</p>
+            <div class="text-7xl mb-6">📁</div>
+            <p class="text-2xl font-bold text-gray-900 mb-2 tracking-tight">Drop your Trading 212 CSV here</p>
+            <p class="text-base text-gray-500 font-medium">or click to browse your files</p>
         </div>
     `;
 }

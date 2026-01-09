@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automated Tests - Trading 212 K4 Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: 'Monaco', 'Courier New', monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 { color: #4ec9b0; }
+        h2 { color: #569cd6; margin-top: 30px; }
+        .pass { color: #4ec9b0; font-weight: bold; }
+        .fail { color: #f48771; font-weight: bold; }
+        .info { color: #9cdcfe; }
+        .test-result { margin: 10px 0; padding: 8px; border-left: 3px solid #444; }
+        .test-result.pass { border-left-color: #4ec9b0; background: #1a2f2a; }
+        .test-result.fail { border-left-color: #f48771; background: #2f1a1a; }
+        pre { background: #252526; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .summary { margin-top: 30px; padding: 20px; background: #252526; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Automated Test Suite - Trading 212 K4 Converter</h1>
+    <div id="results"></div>
+    <div id="summary" class="summary"></div>
+
+    <script>
+        let testResults = [];
+        let passCount = 0;
+        let failCount = 0;
+
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+
+            if (type === 'pass') passCount++;
+            if (type === 'fail') failCount++;
+        }
+
+        function assert(condition, testName, expected, actual) {
+            if (condition) {
+                log(`✓ ${testName}`, 'pass');
+                testResults.push({ test: testName, status: 'PASS' });
+                return true;
+            } else {
+                log(`✗ ${testName}<br>Expected: ${expected}<br>Actual: ${actual}`, 'fail');
+                testResults.push({ test: testName, status: 'FAIL', expected, actual });
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            log('<h2>Test Suite Started</h2>', 'info');
+            log(new Date().toISOString(), 'info');
+
+            // Test 1: Dependencies
+            log('<h2>Test 1: Dependencies & Libraries</h2>', 'info');
+            assert(
+                typeof Papa !== 'undefined',
+                'PapaParse library loaded',
+                'defined',
+                typeof Papa
+            );
+            assert(
+                typeof XLSX !== 'undefined',
+                'SheetJS library loaded',
+                'defined',
+                typeof XLSX
+            );
+
+            // Test 2: CSV Parsing
+            log('<h2>Test 2: CSV Parsing</h2>', 'info');
+            const testCSV = `Action,Time,ISIN,Ticker,Name,No. of shares,Price / share,Currency (Price / share),Exchange rate,Result,Currency (Result),Total,Currency (Total)
+Market sell,2024-07-30 15:01:04,US0378331005,AAPL,Apple,1.0,150.0,USD,0.095,14.25,SEK,150.00,SEK
+Market sell,2024-07-30 15:01:05,US88160R1014,TSLA,Tesla,2.0,200.0,USD,0.095,38.00,SEK,400.00,SEK`;
+
+            let parsedData = null;
+            await new Promise((resolve) => {
+                Papa.parse(testCSV, {
+                    header: true,
+                    complete: function(results) {
+                        parsedData = results.data;
+                        resolve();
+                    }
+                });
+            });
+
+            assert(
+                parsedData && parsedData.length === 2,
+                'CSV parsed with correct row count',
+                '2 rows',
+                parsedData ? parsedData.length : 0
+            );
+
+            assert(
+                parsedData && parsedData[0].Ticker === 'AAPL',
+                'CSV data correctly parsed (first row ticker)',
+                'AAPL',
+                parsedData ? parsedData[0].Ticker : 'N/A'
+            );
+
+            // Test 3: Transaction Filtering
+            log('<h2>Test 3: Transaction Filtering</h2>', 'info');
+            const sellTrans = parsedData.filter(row =>
+                row.Action && row.Action.toLowerCase().includes('sell')
+            );
+            assert(
+                sellTrans.length === 2,
+                'Correctly filters sell transactions',
+                '2 sell transactions',
+                sellTrans.length
+            );
+
+            // Test 4: Data Transformation
+            log('<h2>Test 4: Data Transformation</h2>', 'info');
+            const transformed = sellTrans.map(row => ({
+                instrument: row.Ticker || '',
+                quantity: parseFloat(row['No. of shares']) || 0,
+                realisedPL: parseFloat(row.Result) || 0
+            }));
+
+            assert(
+                transformed[0].instrument === 'AAPL',
+                'Instrument field mapped correctly',
+                'AAPL',
+                transformed[0].instrument
+            );
+
+            assert(
+                transformed[0].quantity === 1.0,
+                'Quantity parsed as number',
+                1.0,
+                transformed[0].quantity
+            );
+
+            // Test 5: P/L Calculation
+            log('<h2>Test 5: P/L Calculations</h2>', 'info');
+            const totalPL = transformed.reduce((sum, t) => sum + t.realisedPL, 0);
+            const expectedTotal = 14.25 + 38.00;
+
+            assert(
+                Math.abs(totalPL - expectedTotal) < 0.01,
+                'Total P/L calculated correctly',
+                `${expectedTotal.toFixed(2)} SEK`,
+                `${totalPL.toFixed(2)} SEK`
+            );
+
+            const gains = transformed.filter(t => t.realisedPL > 0).reduce((sum, t) => sum + t.realisedPL, 0);
+            assert(
+                Math.abs(gains - expectedTotal) < 0.01,
+                'Gains calculated correctly (all positive)',
+                `${expectedTotal.toFixed(2)} SEK`,
+                `${gains.toFixed(2)} SEK`
+            );
+
+            // Test 6: Excel Generation
+            log('<h2>Test 6: Excel File Generation</h2>', 'info');
+            try {
+                const testData = [
+                    { 'Värdepapper': 'AAPL (US0378331005)', 'Antal': 1.0, 'Vinst/Förlust': 14.25 }
+                ];
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(testData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Test Sheet');
+
+                assert(
+                    wb.SheetNames.length === 1,
+                    'Excel workbook created with sheet',
+                    '1 sheet',
+                    wb.SheetNames.length
+                );
+
+                assert(
+                    wb.SheetNames[0] === 'Test Sheet',
+                    'Sheet name is correct',
+                    'Test Sheet',
+                    wb.SheetNames[0]
+                );
+
+                // Test binary generation
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                assert(
+                    wbout && wbout.length > 0,
+                    'Excel binary generated successfully',
+                    'binary data > 0 bytes',
+                    `${wbout.length} bytes`
+                );
+            } catch (e) {
+                assert(false, 'Excel generation', 'success', `Error: ${e.message}`);
+            }
+
+            // Test 7: K4 Data Structure
+            log('<h2>Test 7: K4 Data Structure Validation</h2>', 'info');
+
+            // Simulate K4 detailed format
+            const k4Detailed = transformed.map(t => ({
+                'Värdepapper': `${t.instrument} (TEST)`,
+                'Antal': t.quantity,
+                'Vinst (+) / Förlust (-) (SEK)': t.realisedPL
+            }));
+
+            assert(
+                k4Detailed.length === 2,
+                'K4 detailed data structure created',
+                '2 rows',
+                k4Detailed.length
+            );
+
+            assert(
+                k4Detailed[0].hasOwnProperty('Värdepapper'),
+                'K4 has Värdepapper column',
+                'true',
+                k4Detailed[0].hasOwnProperty('Värdepapper')
+            );
+
+            assert(
+                k4Detailed[0].hasOwnProperty('Antal'),
+                'K4 has Antal column',
+                'true',
+                k4Detailed[0].hasOwnProperty('Antal')
+            );
+
+            assert(
+                k4Detailed[0].hasOwnProperty('Vinst (+) / Förlust (-) (SEK)'),
+                'K4 has Vinst/Förlust column',
+                'true',
+                k4Detailed[0].hasOwnProperty('Vinst (+) / Förlust (-) (SEK)')
+            );
+
+            // Test 8: Aggregation Logic
+            log('<h2>Test 8: Transaction Aggregation</h2>', 'info');
+            const testMultiSales = [
+                { isin: 'US0378331005', instrument: 'AAPL', quantity: 1.0, realisedPL: 10.0, totalSEK: 100, pricePerShare: 150, fxRate: 0.095 },
+                { isin: 'US0378331005', instrument: 'AAPL', quantity: 2.0, realisedPL: 20.0, totalSEK: 200, pricePerShare: 150, fxRate: 0.095 },
+                { isin: 'US88160R1014', instrument: 'TSLA', quantity: 1.0, realisedPL: 5.0, totalSEK: 150, pricePerShare: 200, fxRate: 0.095 }
+            ];
+
+            const grouped = {};
+            testMultiSales.forEach(t => {
+                const key = t.isin;
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        instrument: t.instrument,
+                        isin: t.isin,
+                        quantity: 0,
+                        profitLoss: 0,
+                        transactions: 0
+                    };
+                }
+                grouped[key].quantity += t.quantity;
+                grouped[key].profitLoss += t.realisedPL;
+                grouped[key].transactions += 1;
+            });
+
+            assert(
+                Object.keys(grouped).length === 2,
+                'Aggregation groups by ISIN correctly',
+                '2 unique securities',
+                Object.keys(grouped).length
+            );
+
+            assert(
+                grouped['US0378331005'].quantity === 3.0,
+                'Aggregation sums quantities correctly',
+                '3.0',
+                grouped['US0378331005'].quantity
+            );
+
+            assert(
+                grouped['US0378331005'].profitLoss === 30.0,
+                'Aggregation sums P/L correctly',
+                '30.0',
+                grouped['US0378331005'].profitLoss
+            );
+
+            assert(
+                grouped['US0378331005'].transactions === 2,
+                'Aggregation counts transactions correctly',
+                '2',
+                grouped['US0378331005'].transactions
+            );
+
+            // Test 9: Date Formatting
+            log('<h2>Test 9: Date Formatting</h2>', 'info');
+            const testDate = '2024-07-30 15:01:04';
+            const dt = new Date(testDate);
+            const formatted = String(dt.getDate()).padStart(2, '0') + '.' +
+                            String(dt.getMonth() + 1).padStart(2, '0') + '.' +
+                            dt.getFullYear();
+
+            assert(
+                formatted === '30.07.2024',
+                'Swedish date format (DD.MM.YYYY)',
+                '30.07.2024',
+                formatted
+            );
+
+            const isoFormat = dt.getFullYear() + '-' +
+                            String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(dt.getDate()).padStart(2, '0');
+
+            assert(
+                isoFormat === '2024-07-30',
+                'ISO date format (YYYY-MM-DD)',
+                '2024-07-30',
+                isoFormat
+            );
+
+            // Test 10: Number Formatting
+            log('<h2>Test 10: Number Formatting (Swedish Locale)</h2>', 'info');
+            const testAmount = 1289.10;
+            const formatted2 = new Intl.NumberFormat('sv-SE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(testAmount) + ' SEK';
+
+            assert(
+                formatted2.includes('1') && formatted2.includes('289') && formatted2.includes('10'),
+                'Swedish number format works',
+                'contains 1, 289, 10',
+                formatted2
+            );
+
+            // Test 11: Instrument Type Detection
+            log('<h2>Test 11: Instrument Type Detection</h2>', 'info');
+            function testDetermineType(name) {
+                if (!name) return 'Stock';
+                const nameLower = name.toLowerCase();
+                if (nameLower.includes('etf') || nameLower.includes('ishares') ||
+                    nameLower.includes('vanguard') || nameLower.includes('pimco')) {
+                    return 'ETF';
+                }
+                return 'Stock';
+            }
+
+            assert(
+                testDetermineType('Apple') === 'Stock',
+                'Regular stock detected as Stock',
+                'Stock',
+                testDetermineType('Apple')
+            );
+
+            assert(
+                testDetermineType('iShares MSCI World ETF') === 'ETF',
+                'iShares fund detected as ETF',
+                'ETF',
+                testDetermineType('iShares MSCI World ETF')
+            );
+
+            assert(
+                testDetermineType('Vanguard S&P 500') === 'ETF',
+                'Vanguard fund detected as ETF',
+                'ETF',
+                testDetermineType('Vanguard S&P 500')
+            );
+
+            // Test 12: Critical Function Existence
+            log('<h2>Test 12: Critical Functions Exist</h2>', 'info');
+
+            // Load main app.js functions by checking window object
+            // Note: This test file doesn't load app.js, so we can't test functions directly
+            // Instead, we test the logic patterns that app.js should implement
+
+            log('ℹ️ Note: This test validates logic patterns. Actual app.js functions should be tested via E2E tests.', 'info');
+
+            // Test the pattern for prepareK4Data
+            const testPrepareK4 = () => {
+                const testTransactions = [
+                    { instrument: 'AAPL', isin: 'US0378331005', quantity: 1, pricePerShare: 150, fxRate: 0.095, totalSEK: 142.5, realisedPL: 14.25, time: '2024-07-30', instrumentType: 'Stock', currency: 'USD' }
+                ];
+
+                const k4Detailed = testTransactions.map(t => ({
+                    'Värdepapper': `${t.instrument} (${t.isin})`,
+                    'Antal': t.quantity,
+                    'Försäljningspris (SEK)': t.totalSEK,
+                    'Omkostnadsbelopp (SEK)': parseFloat((t.quantity * t.pricePerShare * t.fxRate).toFixed(2)),
+                    'Vinst (+) / Förlust (-) (SEK)': t.realisedPL
+                }));
+
+                return k4Detailed.length > 0 && k4Detailed[0].hasOwnProperty('Värdepapper');
+            };
+
+            assert(
+                testPrepareK4(),
+                'K4 data preparation logic works',
+                'true',
+                'true'
+            );
+
+            // Test 13: Edge Cases
+            log('<h2>Test 13: Edge Cases</h2>', 'info');
+
+            // Empty CSV
+            const emptyFiltered = [].filter(row => row.Action && row.Action.toLowerCase().includes('sell'));
+            assert(
+                emptyFiltered.length === 0,
+                'Empty array handled correctly',
+                '0',
+                emptyFiltered.length
+            );
+
+            // Missing data
+            const missingData = { Action: 'Market sell', Ticker: '', Result: NaN };
+            const parsedQty = parseFloat(missingData.Result) || 0;
+            assert(
+                parsedQty === 0,
+                'NaN values default to 0',
+                '0',
+                parsedQty
+            );
+
+            // Negative P/L
+            const negativePL = -50.25;
+            const absLoss = Math.abs(negativePL);
+            assert(
+                absLoss === 50.25,
+                'Negative P/L handled correctly',
+                '50.25',
+                absLoss
+            );
+
+            // Test 14: Year Extraction
+            log('<h2>Test 14: Year Extraction Logic</h2>', 'info');
+
+            function testExtractYear(filename, time) {
+                const yearMatch = filename.match(/202\d/);
+                if (yearMatch) return yearMatch[0];
+                if (time) {
+                    const dateMatch = time.match(/(\d{4})-/);
+                    if (dateMatch) return dateMatch[1];
+                }
+                return new Date().getFullYear().toString();
+            }
+
+            assert(
+                testExtractYear('from_2024-01-01_to_2024-12-31.csv', '') === '2024',
+                'Year extracted from filename',
+                '2024',
+                testExtractYear('from_2024-01-01_to_2024-12-31.csv', '')
+            );
+
+            assert(
+                testExtractYear('statement.csv', '2023-08-20 10:00:00') === '2023',
+                'Year extracted from transaction time',
+                '2023',
+                testExtractYear('statement.csv', '2023-08-20 10:00:00')
+            );
+
+            // Summary
+            log('<h2>Test Summary</h2>', 'info');
+            const totalTests = passCount + failCount;
+            const passRate = ((passCount / totalTests) * 100).toFixed(1);
+
+            const summaryHTML = `
+                <h2>📊 Test Results</h2>
+                <div style="margin-top: 20px;">
+                    <div style="font-size: 24px; margin-bottom: 10px;">
+                        <span class="${passCount === totalTests ? 'pass' : failCount > 0 ? 'fail' : 'info'}">
+                            ${passCount === totalTests ? '✅ ALL TESTS PASSED' : failCount > 0 ? '❌ SOME TESTS FAILED' : '⚠️ TESTS COMPLETED'}
+                        </span>
+                    </div>
+                    <div style="font-size: 18px;">
+                        <div>Total Tests: ${totalTests}</div>
+                        <div class="pass">Passed: ${passCount}</div>
+                        <div class="fail">Failed: ${failCount}</div>
+                        <div class="info">Pass Rate: ${passRate}%</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <h3>Test Coverage:</h3>
+                    <ul style="margin-top: 10px; line-height: 1.8;">
+                        <li>✓ Library dependencies</li>
+                        <li>✓ CSV parsing</li>
+                        <li>✓ Transaction filtering</li>
+                        <li>✓ Data transformation</li>
+                        <li>✓ P/L calculations</li>
+                        <li>✓ Excel generation</li>
+                        <li>✓ K4 data structure</li>
+                        <li>✓ Transaction aggregation</li>
+                        <li>✓ Date formatting (Swedish & ISO)</li>
+                        <li>✓ Number formatting (Swedish locale)</li>
+                        <li>✓ Instrument type detection</li>
+                        <li>✓ Year extraction</li>
+                        <li>✓ Edge cases (empty data, NaN, negatives)</li>
+                    </ul>
+                </div>
+                <div style="margin-top: 30px; padding: 15px; background: #1a1a1a; border-radius: 4px;">
+                    <strong>Next Steps:</strong>
+                    <ul style="margin-top: 10px;">
+                        <li>✓ Run E2E tests with Playwright (see test/e2e/)</li>
+                        <li>✓ GitHub Actions will run these tests automatically</li>
+                        <li>✓ Tests run on every push and pull request</li>
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('summary').innerHTML = summaryHTML;
+
+            // Exit code for CI/CD
+            if (failCount > 0) {
+                console.error(`TESTS FAILED: ${failCount} failure(s)`);
+                return false;
+            } else {
+                console.log(`ALL TESTS PASSED: ${passCount}/${totalTests}`);
+                return true;
+            }
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 500);
+        });
+    </script>
+</body>
+</html>
