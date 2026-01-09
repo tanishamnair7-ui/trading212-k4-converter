@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Sitemap: https://sedflix.github.io/trading212-k4-converter/sitemap.xml
+
+# Allow all search engines to crawl the site
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Disallow crawling of test files
+Disallow: /test/
+Disallow: /archive/

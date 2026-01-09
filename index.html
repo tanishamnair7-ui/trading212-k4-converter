@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Meta Tags -->
+    <title>Trading 212 to Swedish K4 Converter - Free Tax Form Generator</title>
+    <meta name="description" content="Free tool to convert Trading 212 CSV statements to Swedish tax form K4 (Bilaga B). 100% private, no registration. Perfect for Swedish investors filing capital gains taxes.">
+    <meta name="keywords" content="Trading 212, Swedish tax, K4, Skatteverket, capital gains, foreign stocks, Sweden, tax converter, CSV to Excel, Bilaga B, deklaration">
+    <meta name="author" content="sedflix">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sedflix.github.io/trading212-k4-converter/">
+    <meta property="og:title" content="Trading 212 to Swedish K4 Converter">
+    <meta property="og:description" content="Free tool to convert Trading 212 statements to Swedish K4 tax format. 100% private, client-side processing.">
+    <meta property="og:site_name" content="Trading 212 K4 Converter">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Trading 212 to Swedish K4 Converter">
+    <meta name="twitter:description" content="Convert Trading 212 CSV to Swedish K4 tax format - Free & Private">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://sedflix.github.io/trading212-k4-converter/">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇸🇪</text></svg>">
+
+    <!-- Schema.org structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Trading 212 to Swedish K4 Converter",
+      "description": "Convert Trading 212 transaction history to Swedish tax form K4",
+      "url": "https://sedflix.github.io/trading212-k4-converter/",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "SEK"
+      },
+      "featureList": "CSV to Excel conversion, K4 tax form generation, Privacy-focused, No registration required"
+    }
+    </script>
+
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-content">
+                <h1>Trading 212 → Swedish K4</h1>
+                <p class="hero-subtitle">Convert your Trading 212 statements to Swedish tax form K4 in seconds</p>
+                <div class="hero-badges">
+                    <span class="badge">🔒 100% Private</span>
+                    <span class="badge">⚡ Instant</span>
+                    <span class="badge">🆓 Free</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Upload Section -->
+            <section class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-text">Drop your Trading 212 CSV here</p>
+                    <p class="upload-hint">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".csv" hidden>
+                </div>
+                <p class="help-text">
+                    Need help? <a href="#" onclick="document.querySelector('.faq details:first-of-type').open=true; document.querySelector('.faq').scrollIntoView({behavior:'smooth'}); return false;">How to export CSV from Trading 212?</a>
+                </p>
+            </section>
+
+            <!-- Preview Section (Hidden initially) -->
+            <section class="preview-section" id="previewSection" style="display: none;">
+                <div class="stats-grid" id="previewStats"></div>
+
+                <div class="preview-details">
+                    <details class="preview-collapse">
+                        <summary>📊 View Transaction Details</summary>
+                        <div id="previewTable" class="table-container"></div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Download Section (Hidden initially) -->
+            <section class="download-section" id="downloadSection" style="display: none;">
+                <div class="k4-summary" id="k4Summary"></div>
+
+                <div class="download-buttons">
+                    <button id="downloadK4" class="btn btn-primary">
+                        <span class="btn-icon">📥</span>
+                        <span>
+                            <strong>Download K4 Statement</strong>
+                            <small>Ready for Skatteverket</small>
+                        </span>
+                    </button>
+                    <button id="downloadOriginal" class="btn btn-secondary">
+                        <span class="btn-icon">📄</span>
+                        <span>
+                            <strong>Download Full Statement</strong>
+                            <small>All transaction details</small>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="faq-section">
+                <h2>Frequently Asked Questions</h2>
+
+                <div class="faq">
+                    <details>
+                        <summary>📤 How do I export CSV from Trading 212?</summary>
+                        <div class="faq-content">
+                            <p><strong>Web Platform:</strong></p>
+                            <ol>
+                                <li>Log in to <a href="https://www.trading212.com" target="_blank">trading212.com</a></li>
+                                <li>Go to <strong>History</strong> → <strong>Statements</strong></li>
+                                <li>Select your date range (e.g., 2024-01-01 to 2024-12-31)</li>
+                                <li>Click <strong>Export</strong> and choose <strong>CSV format</strong></li>
+                                <li>Upload the file here</li>
+                            </ol>
+                            <p><strong>Mobile App:</strong></p>
+                            <ol>
+                                <li>Tap <strong>More</strong> → <strong>History</strong></li>
+                                <li>Select date range</li>
+                                <li>Tap <strong>Export</strong> → Choose <strong>CSV</strong></li>
+                            </ol>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>📝 How to file K4 with Skatteverket?</summary>
+                        <div class="faq-content">
+                            <p><strong>Online Filing (Recommended):</strong></p>
+                            <ol>
+                                <li>Visit <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a> and log in with BankID</li>
+                                <li>Open your tax return: "Inkomstdeklaration 2025 (inkomståret 2024)"</li>
+                                <li>Navigate to "Bilaga K4 - Värdepapper"</li>
+                                <li>Select <strong>"K4 Bilaga B - Utländska aktier och värdepapper"</strong> (Foreign securities)</li>
+                                <li>Enter data from your downloaded K4 Excel file (use Sheet 2 - "K4 Sammanställning")</li>
+                                <li>Enter the totals from Sheet 3 into the summary boxes</li>
+                                <li>Submit before <strong>May 2, 2025</strong> (online deadline)</li>
+                            </ol>
+                            <p><strong>Why Bilaga B (Part B)?</strong></p>
+                            <p>All Trading 212 securities are foreign (non-Swedish). You must use Part B for foreign stocks.</p>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>📊 What's in the K4 Excel file?</summary>
+                        <div class="faq-content">
+                            <p>The generated Excel file contains 3 sheets:</p>
+                            <ul>
+                                <li><strong>Sheet 1: K4 Detaljerad</strong> - Every transaction listed separately</li>
+                                <li><strong>Sheet 2: K4 Sammanställning</strong> (Recommended) - Transactions grouped by security</li>
+                                <li><strong>Sheet 3: Sammanfattning</strong> - Summary totals for K4 boxes</li>
+                            </ul>
+                            <p><strong>Tip:</strong> Use Sheet 2 for easier filing. It's cleaner and Skatteverket accepts it.</p>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>💰 How much tax will I pay?</summary>
+                        <div class="faq-content">
+                            <p>Capital gains from stocks are taxed at <strong>30%</strong> in Sweden.</p>
+                            <p><strong>Example:</strong></p>
+                            <ul>
+                                <li>Your gains: 10,000 SEK</li>
+                                <li>Your losses: -1,000 SEK</li>
+                                <li><strong>Net profit: 9,000 SEK</strong></li>
+                                <li>Tax (30%): <strong>2,700 SEK</strong></li>
+                            </ul>
+                            <p>The tool automatically calculates your net result - check the summary after upload!</p>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>🔒 Is my data safe?</summary>
+                        <div class="faq-content">
+                            <p><strong>Yes, 100% safe.</strong> Your data never leaves your computer.</p>
+                            <ul>
+                                <li>✓ All processing happens in your browser</li>
+                                <li>✓ No data uploaded to any server</li>
+                                <li>✓ No data stored or logged</li>
+                                <li>✓ No cookies or tracking</li>
+                                <li>✓ Open source - verify the code yourself</li>
+                            </ul>
+                            <p>This is a static website running pure JavaScript. Check your browser's network tab - no data is transmitted!</p>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>🤔 Why do I need K4?</summary>
+                        <div class="faq-content">
+                            <p>K4 is the Swedish tax form for reporting capital gains and losses from selling stocks, ETFs, or other securities.</p>
+                            <p><strong>You must file K4 if you:</strong></p>
+                            <ul>
+                                <li>Sold any stocks or ETFs during the tax year</li>
+                                <li>Made a profit or loss on those sales</li>
+                                <li>Trade on Trading 212 or other international platforms</li>
+                            </ul>
+                            <p><strong>K4 Bilaga B</strong> specifically covers foreign securities (all Trading 212 stocks).</p>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>📅 When is the deadline?</summary>
+                        <div class="faq-content">
+                            <p>For tax year 2024 (filing in 2025):</p>
+                            <ul>
+                                <li><strong>Online filing:</strong> May 2, 2025</li>
+                                <li><strong>Paper filing:</strong> April 2, 2025</li>
+                            </ul>
+                            <p>File online at <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a> - it's easier and you get more time!</p>
+                        </div>
+                    </details>
+
+                    <details>
+                        <summary>❓ What if I have questions?</summary>
+                        <div class="faq-content">
+                            <p><strong>Technical issues with this tool:</strong></p>
+                            <ul>
+                                <li>Check the <a href="guide.html">User Guide</a></li>
+                                <li>Open an issue on <a href="https://github.com/sedflix/trading212-k4-converter/issues" target="_blank">GitHub</a></li>
+                            </ul>
+                            <p><strong>Tax filing questions:</strong></p>
+                            <ul>
+                                <li>Skatteverket: <strong>0771-567 567</strong> (Mon-Fri 8:00-16:30)</li>
+                                <li>Website: <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a></li>
+                            </ul>
+                            <p><strong>Trading 212 support:</strong></p>
+                            <ul>
+                                <li>Email: info@trading212.com</li>
+                                <li>In-app chat support</li>
+                            </ul>
+                        </div>
+                    </details>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p class="footer-links">
+                    <a href="guide.html">User Guide</a>
+                    <a href="https://github.com/sedflix/trading212-k4-converter" target="_blank">GitHub</a>
+                    <a href="https://www.skatteverket.se" target="_blank">Skatteverket</a>
+                </p>
+                <p class="footer-note">
+                    <strong>100% Private</strong> - All processing in your browser • No data transmitted •
+                    <a href="https://github.com/sedflix/trading212-k4-converter" target="_blank">Open Source</a>
+                </p>
+                <p class="footer-disclaimer">
+                    Disclaimer: Verify all calculations before filing. Not affiliated with Trading 212 or Skatteverket.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

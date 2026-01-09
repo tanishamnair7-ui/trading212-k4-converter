@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test - Trading 212 to K4 Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>Automated Test Suite</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        function log(message, type = 'info') {
+            const p = document.createElement('p');
+            p.textContent = message;
+            p.style.color = type === 'pass' ? 'green' : type === 'fail' ? 'red' : 'black';
+            p.style.fontWeight = type !== 'info' ? 'bold' : 'normal';
+            results.appendChild(p);
+        }
+
+        function runTests() {
+            log('='.repeat(80));
+            log('AUTOMATED TEST SUITE');
+            log('='.repeat(80));
+
+            // Test 1: Check CDN libraries loaded
+            log('\nTest 1: Check Dependencies');
+            if (typeof Papa !== 'undefined') {
+                log('✓ PapaParse loaded', 'pass');
+            } else {
+                log('✗ PapaParse NOT loaded', 'fail');
+            }
+
+            if (typeof XLSX !== 'undefined') {
+                log('✓ SheetJS loaded', 'pass');
+            } else {
+                log('✗ SheetJS NOT loaded', 'fail');
+            }
+
+            // Test 2: Parse sample CSV data
+            log('\nTest 2: CSV Parsing');
+            const sampleCSV = `Action,Time,ISIN,Ticker,Name,Result
+Market sell,2024-07-30 15:01:04,US0231351067,AMZN,Amazon,19.57
+Market sell,2024-07-30 15:01:04,US88160R1014,TSLA,Tesla,1.58`;
+
+            Papa.parse(sampleCSV, {
+                header: true,
+                complete: function(results) {
+                    if (results.data.length === 2) {
+                        log('✓ CSV parsed correctly (' + results.data.length + ' rows)', 'pass');
+
+                        const total = results.data.reduce((sum, row) => sum + parseFloat(row.Result || 0), 0);
+                        const expected = 21.15;
+
+                        if (Math.abs(total - expected) < 0.01) {
+                            log('✓ Total calculation correct: ' + total.toFixed(2) + ' SEK', 'pass');
+                        } else {
+                            log('✗ Total incorrect: ' + total + ' (expected ' + expected + ')', 'fail');
+                        }
+                    } else {
+                        log('✗ CSV parsing failed', 'fail');
+                    }
+                }
+            });
+
+            // Test 3: Excel generation
+            log('\nTest 3: Excel Generation');
+            try {
+                const testData = [
+                    { 'Name': 'Test', 'Value': 123.45 }
+                ];
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(testData);
+                XLSX.utils.book_append_sheet(wb, ws, 'Test');
+
+                log('✓ Excel workbook created', 'pass');
+
+                // Try to generate binary
+                const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                if (wbout) {
+                    log('✓ Excel binary generation successful', 'pass');
+                }
+            } catch (e) {
+                log('✗ Excel generation failed: ' + e.message, 'fail');
+            }
+
+            // Test 4: Date formatting
+            log('\nTest 4: Date Formatting');
+            const testDate = '2024-07-30 15:01:04';
+            const dt = new Date(testDate);
+
+            if (!isNaN(dt.getTime())) {
+                log('✓ Date parsing works', 'pass');
+
+                // Format as Swedish date
+                const formatted = dt.getDate().toString().padStart(2, '0') + '.' +
+                                (dt.getMonth() + 1).toString().padStart(2, '0') + '.' +
+                                dt.getFullYear();
+
+                if (formatted === '30.07.2024') {
+                    log('✓ Date formatting correct: ' + formatted, 'pass');
+                } else {
+                    log('✗ Date formatting wrong: ' + formatted, 'fail');
+                }
+            } else {
+                log('✗ Date parsing failed', 'fail');
+            }
+
+            // Test 5: Number formatting
+            log('\nTest 5: Number Formatting (Swedish locale)');
+            const testAmount = 8297.89;
+            const formatted = new Intl.NumberFormat('sv-SE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(testAmount);
+
+            if (formatted.includes('8') && formatted.includes('297') && formatted.includes('89')) {
+                log('✓ Number formatting works: ' + formatted, 'pass');
+            } else {
+                log('✗ Number formatting failed: ' + formatted, 'fail');
+            }
+
+            log('\n' + '='.repeat(80));
+            log('TEST SUITE COMPLETE');
+            log('='.repeat(80));
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', function() {
+            setTimeout(runTests, 1000); // Wait for CDN libraries
+        });
+    </script>
+</body>
+</html>

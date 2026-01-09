@@ -1,0 +1,30 @@
+# GitHub Pages Configuration for Trading 212 to K4 Converter
+
+# Site settings
+title: "Trading 212 to Swedish K4 Converter"
+description: "Free tool to convert Trading 212 transaction history to Swedish tax form K4 (Bilaga B)"
+url: "https://sedflix.github.io"
+baseurl: "/trading212-k4-converter"
+
+# Build settings
+markdown: kramdown
+
+# Exclude from processing
+exclude:
+  - README.md
+  - DEVELOPMENT.md
+  - LICENSE
+  - .gitignore
+  - test/
+  - "*.py"
+  - "*.csv"
+  - venv/
+  - "*.pdf"
+
+# Include
+include:
+  - _config.yml
+
+# Plugins
+plugins:
+  - jekyll-seo-tag

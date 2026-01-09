@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - Trading 212 to K4 Converter</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📖 User Guide</h1>
+            <p class="subtitle">Complete guide to converting Trading 212 statements to Swedish K4 format</p>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>🚀 Quick Start</h2>
+                <ol class="filing-steps">
+                    <li>
+                        <strong>Export CSV from Trading 212</strong><br>
+                        Log in → History → Statements → Select year → Export as CSV
+                    </li>
+                    <li>
+                        <strong>Upload to Converter</strong><br>
+                        Visit the <a href="index.html">converter</a> and upload your CSV file
+                    </li>
+                    <li>
+                        <strong>Download K4 File</strong><br>
+                        Download the generated K4 Excel file
+                    </li>
+                    <li>
+                        <strong>File with Skatteverket</strong><br>
+                        Use the K4 file to complete your Swedish tax return online
+                    </li>
+                </ol>
+            </section>
+
+            <section class="card">
+                <h2>📥 How to Export from Trading 212</h2>
+                <h3>Web Platform</h3>
+                <ol>
+                    <li>Log in to <a href="https://www.trading212.com" target="_blank">trading212.com</a></li>
+                    <li>Click on <strong>History</strong> in the menu</li>
+                    <li>Select <strong>Statements</strong></li>
+                    <li>Choose date range:
+                        <ul>
+                            <li>For 2024 taxes: 2024-01-01 to 2024-12-31</li>
+                            <li>For 2023 taxes: 2023-01-01 to 2023-12-31</li>
+                        </ul>
+                    </li>
+                    <li>Click <strong>Export</strong> button</li>
+                    <li>Select <strong>CSV format</strong> (NOT PDF!)</li>
+                    <li>Save the file to your computer</li>
+                </ol>
+
+                <h3>Mobile App</h3>
+                <ol>
+                    <li>Open Trading 212 app</li>
+                    <li>Tap <strong>More</strong> → <strong>History</strong></li>
+                    <li>Tap the filter icon and select date range</li>
+                    <li>Tap <strong>Export</strong> or <strong>Share</strong></li>
+                    <li>Choose <strong>CSV</strong> format</li>
+                    <li>Save or share the file</li>
+                </ol>
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <strong>⚠️ Important:</strong> Make sure you export as <strong>CSV</strong>, not PDF.
+                    The PDF format cannot be processed automatically.
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>📊 Understanding the K4 Output</h2>
+                <p>The converter generates an Excel file with 3 sheets:</p>
+
+                <h3>Sheet 1: K4 Detaljerad (Detailed)</h3>
+                <p>Every single sell transaction listed separately.</p>
+                <ul>
+                    <li><strong>Värdepapper</strong> - Security name with ISIN</li>
+                    <li><strong>Antal</strong> - Quantity sold</li>
+                    <li><strong>Försäljningspris</strong> - Sale price in SEK</li>
+                    <li><strong>Omkostnadsbelopp</strong> - Acquisition cost in SEK</li>
+                    <li><strong>Vinst/Förlust</strong> - Profit or Loss in SEK</li>
+                </ul>
+
+                <h3>Sheet 2: K4 Sammanställning (Summary) ⭐ RECOMMENDED</h3>
+                <p>Transactions aggregated by security (one row per stock/ETF).</p>
+                <p><strong>Use this sheet for filing - it's cleaner and easier!</strong></p>
+
+                <h3>Sheet 3: Sammanfattning (Totals)</h3>
+                <p>Summary statistics you need for K4 form boxes:</p>
+                <ul>
+                    <li><strong>Box 3.3</strong> - Total gains (Vinster)</li>
+                    <li><strong>Box 3.4</strong> - Total losses (Förluster)</li>
+                    <li><strong>Box 3.5</strong> - Net result (Nettoresultat) ← This goes to your tax return!</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>📝 Filing K4 with Skatteverket</h2>
+
+                <h3>Online Filing (Recommended)</h3>
+                <ol>
+                    <li>Visit <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a></li>
+                    <li>Log in with BankID</li>
+                    <li>Open your tax return: "Inkomstdeklaration 2025 (inkomståret 2024)"</li>
+                    <li>Navigate to "Bilaga K4 - Värdepapper"</li>
+                    <li>Select <strong>"K4 Bilaga B - Utländska aktier och värdepapper"</strong></li>
+                    <li>Enter data from your K4 Excel file (Sheet 2)</li>
+                    <li>Verify totals match the summary sheet</li>
+                    <li>Submit before <strong>May 2, 2025</strong></li>
+                </ol>
+
+                <div class="info-box" style="margin-top: 15px;">
+                    <strong>Why Bilaga B (Part B)?</strong><br>
+                    All Trading 212 securities are foreign (non-Swedish). You must use Part B, not Part A.
+                </div>
+
+                <h3>What to Enter in K4 Form</h3>
+                <p>For each security from your Excel file:</p>
+                <table class="k4-table" style="margin-top: 15px;">
+                    <tr>
+                        <td><strong>K4 Form Field</strong></td>
+                        <td><strong>Excel Column</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Värdepapper (Security name)</td>
+                        <td>Column A</td>
+                    </tr>
+                    <tr>
+                        <td>Antal (Quantity)</td>
+                        <td>Column B</td>
+                    </tr>
+                    <tr>
+                        <td>Försäljningspris (Sale price)</td>
+                        <td>Column C</td>
+                    </tr>
+                    <tr>
+                        <td>Omkostnadsbelopp (Acquisition cost)</td>
+                        <td>Column D</td>
+                    </tr>
+                    <tr>
+                        <td>Vinst eller förlust (Profit/Loss)</td>
+                        <td>Column E</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="card">
+                <h2>💰 Understanding Swedish Capital Gains Tax</h2>
+
+                <h3>Tax Rate</h3>
+                <p>Capital gains from stocks and ETFs are taxed at <strong>30%</strong> in Sweden.</p>
+
+                <h3>How It Works</h3>
+                <ul>
+                    <li>Profits from stock sales = <strong>Capital Gains</strong></li>
+                    <li>Losses can be deducted from gains in the same year</li>
+                    <li>Net result is taxed at 30%</li>
+                    <li>Losses exceeding gains can offset other capital income</li>
+                </ul>
+
+                <h3>Example Calculation</h3>
+                <div style="background: var(--light-bg); padding: 20px; border-radius: 6px; margin-top: 15px;">
+                    <p><strong>Your trades:</strong></p>
+                    <ul>
+                        <li>Total gains: 10,000 SEK</li>
+                        <li>Total losses: 1,000 SEK</li>
+                        <li><strong>Net result: 9,000 SEK</strong></li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>Tax calculation:</strong></p>
+                    <p>9,000 SEK × 30% = <strong>2,700 SEK tax</strong></p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>🔍 Troubleshooting</h2>
+
+                <h3>Error: "No sell transactions found"</h3>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Make sure you exported the correct date range</li>
+                    <li>If you only made buy transactions, there's nothing to report on K4</li>
+                    <li>Check that the CSV file is from Trading 212 (not another broker)</li>
+                </ul>
+
+                <h3>Total doesn't match my calculation</h3>
+                <p><strong>Possible reasons:</strong></p>
+                <ul>
+                    <li>Trading 212 uses the average cost method (genomsnittsmetoden)</li>
+                    <li>Currency conversion timing may differ slightly</li>
+                    <li>Broker fees are included in the result</li>
+                </ul>
+                <p><strong>Solution:</strong> Use the broker's reported P/L (Result column) - it's official and what Skatteverket expects.</p>
+
+                <h3>I have trades from multiple years</h3>
+                <p><strong>Solution:</strong> Export and process each year separately. File separate K4 forms for each tax year.</p>
+
+                <h3>What about dividends?</h3>
+                <p><strong>Note:</strong> Dividends are NOT reported on K4. They go on a different form (Ku10 or automatically from bank). This tool only handles capital gains/losses from selling securities.</p>
+            </section>
+
+            <section class="card">
+                <h2>📞 Getting Help</h2>
+
+                <h3>Skatteverket (Swedish Tax Agency)</h3>
+                <ul>
+                    <li><strong>Phone:</strong> 0771-567 567 (Mon-Fri 8:00-16:30)</li>
+                    <li><strong>Website:</strong> <a href="https://www.skatteverket.se" target="_blank">skatteverket.se</a></li>
+                    <li><strong>Email:</strong> Through "Mina Meddelanden" when logged in</li>
+                </ul>
+
+                <h3>Trading 212 Support</h3>
+                <ul>
+                    <li><strong>Email:</strong> info@trading212.com</li>
+                    <li><strong>In-app chat:</strong> Available in the mobile app</li>
+                    <li><strong>Help center:</strong> <a href="https://helpcentre.trading212.com" target="_blank">helpcentre.trading212.com</a></li>
+                </ul>
+
+                <h3>Tax Advisors</h3>
+                <p>Consider consulting a tax advisor if:</p>
+                <ul>
+                    <li>This is your first time reporting foreign stocks</li>
+                    <li>You have large capital gains (>100,000 SEK)</li>
+                    <li>You have complex tax situations</li>
+                    <li>You're unsure about ETF classification</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>⚖️ Legal & Privacy</h2>
+
+                <h3>Privacy & Security</h3>
+                <p><strong>Your data is 100% private.</strong></p>
+                <ul>
+                    <li>All processing happens in your web browser (JavaScript)</li>
+                    <li>No data is uploaded to any server</li>
+                    <li>No data is stored or logged</li>
+                    <li>No cookies or tracking</li>
+                    <li>Open source - you can verify the code</li>
+                </ul>
+
+                <h3>Disclaimer</h3>
+                <p>This tool is provided "as-is" for informational purposes only. While we strive for accuracy:</p>
+                <ul>
+                    <li>Always verify calculations before filing</li>
+                    <li>Consult a tax professional for complex situations</li>
+                    <li>Keep original Trading 212 statements for at least 10 years</li>
+                    <li>Not affiliated with Trading 212 or Skatteverket</li>
+                    <li>Use at your own responsibility</li>
+                </ul>
+
+                <h3>License</h3>
+                <p>This tool is open source and free to use. Contributions welcome on <a href="https://github.com/sedflix/trading212-k4-converter" target="_blank">GitHub</a>.</p>
+            </section>
+
+            <div style="text-align: center; padding: 30px;">
+                <a href="index.html" class="btn btn-primary">← Back to Converter</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>Made with ❤️ for Swedish investors using Trading 212</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+# Archive folder (development files)
+archive/
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Personal CSV files (don't commit user data!)
+*.csv
+!test/test-data/*.csv
+
+# Generated Excel files
+*.xlsx
+!test/expected-output/*.xlsx
+
+# PDF files
+*.pdf
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Node modules (if added later)
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Jekyll
+_site/
+.jekyll-cache/
+.sass-cache/
+
+# Debug files
+*.png
+debug*.py
+test*.py
+check*.py
+analyze*.py
+convert*.py
+create*.py
+extract*.py
+find*.py
+fix*.py
+parse*.py
+process*.py
+reextract*.py
+verify*.py
+CONVERSION*.txt
+FINAL*.md
+K4_README.md
+
+# Keep only essential files
+!index.html
+!guide.html
+!app.js
+!styles.css
+!README.md
+!DEVELOPMENT.md
+!_config.yml
+!.gitignore
+!LICENSE
