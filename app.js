@@ -399,137 +399,164 @@ function downloadK4AsPDF() {
         }
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4'); // Portrait orientation for official document
+        const doc = new jsPDF('p', 'mm', 'a4');
         const year = window.year || new Date().getFullYear();
 
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        const margin = 25; // Professional margins
+        const margin = 20;
 
         // Calculate totals
         const totalGains = sellTransactions.filter(t => t.realisedPL > 0).reduce((sum, t) => sum + t.realisedPL, 0);
         const totalLosses = sellTransactions.filter(t => t.realisedPL < 0).reduce((sum, t) => sum + t.realisedPL, 0);
         const totalPL = totalGains + totalLosses;
 
-        // Helper function to add page header
-        const addHeader = (pageNum) => {
-            doc.setFontSize(10);
+        // Helper function to add official K4 header
+        const addK4Header = (pageNum) => {
+            // Skatteverket header
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text('Skatteverket', margin, 15);
+
+            // K4 title (top right)
+            doc.setFontSize(24);
+            doc.text('K4', pageWidth - margin, 15, { align: 'right' });
+
+            // Document title
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Försäljning', pageWidth - margin, 23, { align: 'right' });
             doc.setFont(undefined, 'normal');
-            doc.setTextColor(100);
-            doc.text(`Page ${pageNum}`, pageWidth - margin, margin - 10, { align: 'right' });
-            doc.setTextColor(0);
+            doc.setFontSize(10);
+            doc.text('Värdepapper m.m.', pageWidth - margin, 28, { align: 'right' });
+
+            // Year box
+            doc.setLineWidth(0.5);
+            doc.rect(pageWidth - margin - 40, 33, 40, 8);
+            doc.setFontSize(9);
+            doc.text('Inkomstår', pageWidth - margin - 38, 37);
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text(year.toString(), pageWidth - margin - 20, 40, { align: 'center' });
+            doc.setFont(undefined, 'normal');
         };
 
         // Helper function to add page footer
         const addFooter = (pageNum) => {
             doc.setFontSize(8);
-            doc.setFont(undefined, 'normal');
             doc.setTextColor(100);
-            doc.text(`K4 Bilaga B - Utländska värdepapper | Inkomståret ${year}`, margin, pageHeight - 10);
-            doc.text(`Sida ${pageNum}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+            doc.text(`Sida ${pageNum}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
             doc.setTextColor(0);
         };
 
-        // ========== PAGE 1: SUMMARY & TAX BOXES ==========
+        // ========== PAGE 1: K4 FORM WITH SECTIONS ==========
         let currentPage = 1;
-        addHeader(currentPage);
+        addK4Header(currentPage);
 
-        // Main Title
-        doc.setFontSize(20);
-        doc.setFont(undefined, 'bold');
-        doc.text('K4 Bilaga B', margin, margin + 10);
-        doc.setFontSize(14);
-        doc.text('Utländska aktier och andra delägarrätter', margin, margin + 20);
+        let yPos = 50;
 
-        doc.setFontSize(11);
-        doc.setFont(undefined, 'normal');
-        doc.text(`Inkomstår: ${year}`, margin, margin + 30);
-
-        // Draw separator line
-        doc.setLineWidth(0.5);
-        doc.line(margin, margin + 35, pageWidth - margin, margin + 35);
-
-        let yPos = margin + 45;
-
-        // Tax Summary Section
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text('SAMMANFATTNING FÖR SKATTEVERKET', margin, yPos);
-        yPos += 10;
-
-        // Create summary box
-        doc.setFillColor(245, 245, 250);
-        doc.rect(margin, yPos, pageWidth - 2 * margin, 60, 'F');
+        // Information box (like in official form)
+        doc.setFillColor(245, 245, 245);
         doc.setLineWidth(0.3);
-        doc.rect(margin, yPos, pageWidth - 2 * margin, 60, 'S');
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 15, 'FD');
+        doc.setFontSize(8);
+        doc.text('Blankett för försäljning av värdepapper (Trading 212)', margin + 2, yPos + 5);
+        doc.text('Detta dokument innehåller sammanställning för K4 Bilaga B - Utländska aktier', margin + 2, yPos + 10);
+        doc.text(`Inkomstår ${year}`, margin + 2, yPos + 13);
 
-        yPos += 8;
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
+        yPos += 20;
 
-        doc.text('Antal transaktioner:', margin + 5, yPos);
-        doc.text(`${sellTransactions.length} st`, pageWidth - margin - 5, yPos, { align: 'right' });
-        yPos += 8;
-
-        doc.text('Antal unika värdepapper:', margin + 5, yPos);
-        doc.text(`${Object.keys(window.k4Data.aggregated.reduce((acc, item) => { acc[item.ISIN] = true; return acc; }, {})).length} st`, pageWidth - margin - 5, yPos, { align: 'right' });
-        yPos += 12;
-
-        // Tax boxes - highlighted
-        doc.setFont(undefined, 'bold');
+        // Summary boxes (Tax boxes)
         doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('SAMMANFATTNING', margin, yPos);
+        yPos += 7;
 
-        // Box 3.3 - Gains
-        doc.setFillColor(220, 255, 220);
-        doc.rect(margin + 5, yPos - 5, pageWidth - 2 * margin - 10, 8, 'F');
-        doc.text('Box 3.3 - Vinster (Gains):', margin + 10, yPos);
+        // Summary statistics
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Antal transaktioner: ${sellTransactions.length}`, margin, yPos);
+        doc.text(`Antal värdepapper: ${Object.keys(window.k4Data.aggregated.reduce((acc, item) => { acc[item.ISIN] = true; return acc; }, {})).length}`, margin + 60, yPos);
+        yPos += 8;
+
+        // Tax boxes section
+        doc.setLineWidth(0.5);
+        const boxHeight = 10;
+        const boxWidth = (pageWidth - 2 * margin) / 2;
+
+        // Box 3.3 - Vinster (Gains)
+        doc.setFillColor(255, 255, 255);
+        doc.rect(margin, yPos, boxWidth - 2, boxHeight);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'bold');
+        doc.text('Box 3.3 Vinster:', margin + 2, yPos + 6);
         doc.setTextColor(0, 120, 0);
-        doc.text(formatSEK(totalGains), pageWidth - margin - 10, yPos, { align: 'right' });
+        doc.text(formatSEK(totalGains), margin + boxWidth - 4, yPos + 6, { align: 'right' });
         doc.setTextColor(0);
-        yPos += 10;
 
-        // Box 3.4 - Losses
-        doc.setFillColor(255, 220, 220);
-        doc.rect(margin + 5, yPos - 5, pageWidth - 2 * margin - 10, 8, 'F');
-        doc.text('Box 3.4 - Förluster (Losses):', margin + 10, yPos);
+        // Box 3.4 - Förluster (Losses)
+        doc.setFillColor(255, 255, 255);
+        doc.rect(margin + boxWidth, yPos, boxWidth - 2, boxHeight);
+        doc.setFont(undefined, 'bold');
+        doc.text('Box 3.4 Förluster:', margin + boxWidth + 2, yPos + 6);
         doc.setTextColor(180, 0, 0);
-        doc.text(formatSEK(Math.abs(totalLosses)), pageWidth - margin - 10, yPos, { align: 'right' });
+        doc.text(formatSEK(Math.abs(totalLosses)), pageWidth - margin - 2, yPos + 6, { align: 'right' });
         doc.setTextColor(0);
+
+        yPos += boxHeight + 2;
+
+        // Box 3.5 - Nettoresultat (Net Result)
+        doc.setFillColor(240, 248, 255);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, boxHeight, 'FD');
+        doc.setFont(undefined, 'bold');
+        doc.setFontSize(10);
+        doc.text('Box 3.5 Nettoresultat:', margin + 2, yPos + 6);
+        doc.setTextColor(totalPL >= 0 ? 0 : 180, totalPL >= 0 ? 120 : 0, 0);
+        doc.text(formatSEK(totalPL), pageWidth - margin - 2, yPos + 6, { align: 'right' });
+        doc.setTextColor(0);
+
+        yPos += boxHeight + 3;
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(80);
+        doc.text(`Beräknad skatt (30%): ${formatSEK(Math.max(0, totalPL * 0.3))}`, margin, yPos);
+        doc.setTextColor(0);
+
         yPos += 10;
 
-        // Box 3.5 - Net Result
-        doc.setFillColor(220, 230, 255);
-        doc.rect(margin + 5, yPos - 5, pageWidth - 2 * margin - 10, 8, 'F');
-        doc.text('Box 3.5 - Nettoresultat (Net Result):', margin + 10, yPos);
-        doc.setTextColor(totalPL >= 0 ? 0, 120, 0 : 180, 0, 0);
-        doc.text(formatSEK(totalPL), pageWidth - margin - 10, yPos, { align: 'right' });
-        doc.setTextColor(0);
+        // ========== SECTION A: MARKNADSNOTERADE AKTIER ==========
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('A. Marknadsnoterade aktier, aktieindexobligationer m.m. (Bilaga B - Utländska)', margin + 2, yPos + 5.5);
+
         yPos += 12;
 
-        doc.setFont(undefined, 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor(80);
-        doc.text('Beräknad skatt (30%):', margin + 10, yPos);
-        doc.text(formatSEK(Math.max(0, totalPL * 0.3)), pageWidth - margin - 10, yPos, { align: 'right' });
-        doc.setTextColor(0);
+        // Section A explanation
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Alla Trading 212 värdepapper är utländska och ska rapporteras i K4 Bilaga B', margin, yPos);
 
         addFooter(currentPage);
 
-        // ========== PAGE 2: AGGREGATED K4 DATA ==========
+        // ========== PAGE 2: SECTION A DATA (AGGREGATED) ==========
         doc.addPage();
         currentPage++;
-        addHeader(currentPage);
+        addK4Header(currentPage);
 
-        yPos = margin + 10;
-        doc.setFontSize(14);
+        yPos = 50;
+        doc.setFontSize(11);
         doc.setFont(undefined, 'bold');
-        doc.text('K4 Sammanställning - Aggregerad', margin, yPos);
+        doc.text('Sektion A: Marknadsnoterade aktier - Sammanställning (Aggregerad)', margin, yPos);
 
-        doc.setFontSize(9);
+        doc.setFontSize(8);
         doc.setFont(undefined, 'italic');
-        yPos += 7;
-        doc.text('(Rekommenderas för inmatning i Skatteverkets system)', margin, yPos);
-        yPos += 5;
+        yPos += 6;
+        doc.text('Rekommenderas för inmatning i Skatteverkets system. Flera försäljningar av samma värdepapper summeras.', margin, yPos);
+        yPos += 8;
 
         // Prepare aggregated data table
         const k4AggregatedData = window.k4Data.aggregated.map(item => [
@@ -541,36 +568,36 @@ function downloadK4AsPDF() {
         ]);
 
         doc.autoTable({
-            startY: yPos + 5,
-            head: [['Värdepapper', 'Antal', 'Försäljningspris', 'Omkostnadsbelopp', 'Vinst/Förlust']],
+            startY: yPos,
+            head: [['Värdepapper', 'Antal', 'Försäljningspris (SEK)', 'Omkostnadsbelopp (SEK)', 'Vinst/Förlust (SEK)']],
             body: k4AggregatedData,
-            margin: { left: margin, right: margin },
+            margin: { left: margin, right: margin, top: 50, bottom: 20 },
             styles: {
-                fontSize: 8,
-                cellPadding: 3,
+                fontSize: 7,
+                cellPadding: 2,
                 lineColor: [200, 200, 200],
                 lineWidth: 0.1
             },
             headStyles: {
-                fillColor: [31, 78, 120],
-                textColor: [255, 255, 255],
+                fillColor: [220, 220, 220],
+                textColor: [0, 0, 0],
                 fontStyle: 'bold',
-                halign: 'center'
+                halign: 'center',
+                lineWidth: 0.5,
+                lineColor: [100, 100, 100]
             },
             columnStyles: {
-                0: { cellWidth: 60 },
-                1: { halign: 'right', cellWidth: 20 },
-                2: { halign: 'right', cellWidth: 30 },
-                3: { halign: 'right', cellWidth: 30 },
-                4: { halign: 'right', cellWidth: 30 }
+                0: { cellWidth: 65 },
+                1: { halign: 'right', cellWidth: 25 },
+                2: { halign: 'right', cellWidth: 28 },
+                3: { halign: 'right', cellWidth: 28 },
+                4: { halign: 'right', cellWidth: 24 }
             },
             alternateRowStyles: {
-                fillColor: [248, 249, 250]
+                fillColor: [250, 250, 250]
             },
             didDrawPage: (data) => {
-                if (data.pageNumber > 1) {
-                    addHeader(currentPage + data.pageNumber - 1);
-                }
+                addK4Header(currentPage + data.pageNumber - 1);
                 addFooter(currentPage + data.pageNumber - 1);
             }
         });
@@ -578,21 +605,21 @@ function downloadK4AsPDF() {
         // Update current page after table
         currentPage = doc.internal.getNumberOfPages();
 
-        // ========== PAGE 3+: DETAILED TRANSACTIONS ==========
+        // ========== PAGE N: SECTION A - DETAILED TRANSACTIONS ==========
         doc.addPage();
         currentPage++;
-        addHeader(currentPage);
+        addK4Header(currentPage);
 
-        yPos = margin + 10;
-        doc.setFontSize(14);
+        yPos = 50;
+        doc.setFontSize(11);
         doc.setFont(undefined, 'bold');
-        doc.text('K4 Detaljerad - Alla transaktioner', margin, yPos);
+        doc.text('Sektion A: Detaljerad - Alla individuella transaktioner', margin, yPos);
 
-        doc.setFontSize(9);
+        doc.setFontSize(8);
         doc.setFont(undefined, 'italic');
-        yPos += 7;
-        doc.text('(För verifiering och referens)', margin, yPos);
-        yPos += 5;
+        yPos += 6;
+        doc.text('För verifiering och referens. Varje försäljning visas separat.', margin, yPos);
+        yPos += 8;
 
         // Prepare detailed data table
         const k4DetailedData = window.k4Data.detailed.map(item => [
@@ -605,41 +632,113 @@ function downloadK4AsPDF() {
         ]);
 
         doc.autoTable({
-            startY: yPos + 5,
+            startY: yPos,
             head: [['Värdepapper', 'Antal', 'Försäljningspris', 'Omkostnad', 'Vinst/Förlust', 'Datum']],
             body: k4DetailedData,
-            margin: { left: margin, right: margin },
+            margin: { left: margin, right: margin, top: 50, bottom: 20 },
             styles: {
-                fontSize: 7,
-                cellPadding: 2,
+                fontSize: 6,
+                cellPadding: 1.5,
                 lineColor: [200, 200, 200],
                 lineWidth: 0.1
             },
             headStyles: {
-                fillColor: [68, 114, 196],
-                textColor: [255, 255, 255],
+                fillColor: [220, 220, 220],
+                textColor: [0, 0, 0],
                 fontStyle: 'bold',
-                fontSize: 8,
-                halign: 'center'
+                fontSize: 7,
+                halign: 'center',
+                lineWidth: 0.5,
+                lineColor: [100, 100, 100]
             },
             columnStyles: {
-                0: { cellWidth: 50 },
+                0: { cellWidth: 55 },
                 1: { halign: 'right', cellWidth: 22 },
-                2: { halign: 'right', cellWidth: 28 },
-                3: { halign: 'right', cellWidth: 28 },
-                4: { halign: 'right', cellWidth: 28 },
-                5: { halign: 'center', cellWidth: 24 }
+                2: { halign: 'right', cellWidth: 27 },
+                3: { halign: 'right', cellWidth: 27 },
+                4: { halign: 'right', cellWidth: 27 },
+                5: { halign: 'center', cellWidth: 22 }
             },
             alternateRowStyles: {
                 fillColor: [252, 252, 252]
             },
             didDrawPage: (data) => {
-                if (data.pageNumber > 1) {
-                    addHeader(currentPage + data.pageNumber - 1);
-                }
+                addK4Header(currentPage + data.pageNumber - 1);
                 addFooter(currentPage + data.pageNumber - 1);
             }
         });
+
+        // Update current page after table
+        currentPage = doc.internal.getNumberOfPages();
+
+        // ========== FINAL PAGE: SECTIONS B, C, D ==========
+        doc.addPage();
+        currentPage++;
+        addK4Header(currentPage);
+
+        yPos = 50;
+
+        // Section B: Återföring av uppskovsbelopp
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('B. Återföring av uppskovsbelopp', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Ej tillämpligt - Inga uppskovsbelopp att återföra för Trading 212 transaktioner.', margin, yPos);
+
+        yPos += 15;
+
+        // Section C: Marknadsnoterade obligationer
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('C. Marknadsnoterade obligationer, valuta m.m.', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Ej tillämpligt - Trading 212 transaktioner innehåller endast aktier och ETF:er.', margin, yPos);
+
+        yPos += 15;
+
+        // Section D: Övriga värdepapper
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('D. Övriga värdepapper, andra tillgångar (t.ex. kryptovalutor)', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Ej tillämpligt - Inga övriga värdepapper i denna rapport.', margin, yPos);
+
+        yPos += 15;
+
+        // Footer note
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 20, 'F');
+        doc.setLineWidth(0.3);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 20);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'bold');
+        doc.text('OBS!', margin + 2, yPos + 5);
+        doc.setFont(undefined, 'normal');
+        doc.text('Detta dokument är genererat från Trading 212 transaktionsdata.', margin + 2, yPos + 10);
+        doc.text('Verifiera alltid uppgifterna mot dina egna register innan inlämning till Skatteverket.', margin + 2, yPos + 15);
+
+        addFooter(currentPage);
 
         const filename = `${year}_K4_Bilaga_B.pdf`;
         doc.save(filename);
