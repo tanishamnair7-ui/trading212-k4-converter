@@ -355,14 +355,20 @@ function prepareK4Data(transactions, year) {
 }
 
 function downloadK4Excel() {
-    const format = document.getElementById('k4Format').value;
+    try {
+        const format = document.getElementById('k4Format').value;
+        console.log('Selected K4 format:', format);
 
-    if (format === 'excel') {
-        downloadK4AsExcel();
-    } else if (format === 'pdf') {
-        downloadK4AsPDF();
-    } else if (format === 'csv') {
-        downloadK4AsCSV();
+        if (format === 'excel') {
+            downloadK4AsExcel();
+        } else if (format === 'pdf') {
+            downloadK4AsPDF();
+        } else if (format === 'csv') {
+            downloadK4AsCSV();
+        }
+    } catch (error) {
+        console.error('Error in downloadK4Excel:', error);
+        alert('Error generating download: ' + error.message);
     }
 }
 
@@ -377,131 +383,430 @@ function downloadK4AsExcel() {
 }
 
 function downloadK4AsPDF() {
-    if (!window.k4Data) return;
+    try {
+        console.log('Starting PDF generation...');
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4'); // Landscape orientation
-    const year = window.year || new Date().getFullYear();
-
-    // Title
-    doc.setFontSize(18);
-    doc.setFont(undefined, 'bold');
-    doc.text(`Swedish K4 Tax Statement - ${year}`, 14, 20);
-
-    // Summary section
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text('Summary', 14, 32);
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(10);
-
-    const totalGains = sellTransactions.filter(t => t.realisedPL > 0).reduce((sum, t) => sum + t.realisedPL, 0);
-    const totalLosses = sellTransactions.filter(t => t.realisedPL < 0).reduce((sum, t) => sum + t.realisedPL, 0);
-    const totalPL = totalGains + totalLosses;
-
-    doc.text(`Total Transactions: ${sellTransactions.length}`, 14, 40);
-    doc.text(`Box 3.3 - Total Gains: ${formatSEK(totalGains)}`, 14, 46);
-    doc.text(`Box 3.4 - Total Losses: ${formatSEK(Math.abs(totalLosses))}`, 14, 52);
-    doc.text(`Box 3.5 - Net Result: ${formatSEK(totalPL)}`, 14, 58);
-
-    // K4 Detailed table
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text('K4 Detailed (K4 Detaljerad)', 14, 70);
-
-    const k4DetailedData = window.k4Data.detailed.map(item => [
-        item['Värdepapper'],
-        item['Antal'].toFixed(6),
-        item['Försäljningspris (SEK)'].toFixed(2),
-        item['Omkostnadsbelopp (SEK)'].toFixed(2),
-        item['Vinst (+) / Förlust (-) (SEK)'].toFixed(2),
-        item['Försäljningsdatum'],
-        item['ISIN']
-    ]);
-
-    doc.autoTable({
-        startY: 75,
-        head: [['Security', 'Quantity', 'Sale Price (SEK)', 'Acquisition Cost (SEK)', 'P/L (SEK)', 'Date', 'ISIN']],
-        body: k4DetailedData,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [63, 81, 181] },
-        columnStyles: {
-            1: { halign: 'right' },
-            2: { halign: 'right' },
-            3: { halign: 'right' },
-            4: { halign: 'right' }
+        if (!window.k4Data) {
+            console.error('No K4 data available');
+            alert('No data available for PDF generation');
+            return;
         }
-    });
 
-    // K4 Aggregated on new page
-    doc.addPage();
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text('K4 Aggregated (K4 Sammanställning) - Recommended', 14, 20);
-
-    const k4AggregatedData = window.k4Data.aggregated.map(item => [
-        item['Värdepapper'],
-        item['Totalt Antal'].toFixed(6),
-        item['Totalt Försäljningspris (SEK)'].toFixed(2),
-        item['Totalt Omkostnadsbelopp (SEK)'].toFixed(2),
-        item['Totalt Vinst/Förlust (SEK)'].toFixed(2),
-        item['Antal Transaktioner'],
-        item['ISIN']
-    ]);
-
-    doc.autoTable({
-        startY: 25,
-        head: [['Security', 'Total Qty', 'Total Sale Price', 'Total Acq. Cost', 'Total P/L', 'Transactions', 'ISIN']],
-        body: k4AggregatedData,
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [63, 81, 181] },
-        columnStyles: {
-            1: { halign: 'right' },
-            2: { halign: 'right' },
-            3: { halign: 'right' },
-            4: { halign: 'right' },
-            5: { halign: 'right' }
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            console.error('jsPDF library not loaded');
+            alert('PDF library not loaded. Please refresh the page and try again.');
+            return;
         }
-    });
 
-    const filename = `${year}_K4_Statement.pdf`;
-    doc.save(filename);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const year = window.year || new Date().getFullYear();
 
-    showNotification(`✅ Downloaded: ${filename}`);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const margin = 20;
+
+        // Calculate totals
+        const totalGains = sellTransactions.filter(t => t.realisedPL > 0).reduce((sum, t) => sum + t.realisedPL, 0);
+        const totalLosses = sellTransactions.filter(t => t.realisedPL < 0).reduce((sum, t) => sum + t.realisedPL, 0);
+        const totalPL = totalGains + totalLosses;
+
+        // Helper function to add official K4 header
+        const addK4Header = (pageNum) => {
+            // Skatteverket header
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text('Skatteverket', margin, 15);
+
+            // K4 title (top right)
+            doc.setFontSize(24);
+            doc.text('K4', pageWidth - margin, 15, { align: 'right' });
+
+            // Document title
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.text('Försäljning', pageWidth - margin, 23, { align: 'right' });
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(10);
+            doc.text('Värdepapper m.m.', pageWidth - margin, 28, { align: 'right' });
+
+            // Year box
+            doc.setLineWidth(0.5);
+            doc.rect(pageWidth - margin - 40, 33, 40, 8);
+            doc.setFontSize(9);
+            doc.text('Inkomstår', pageWidth - margin - 38, 37);
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text(year.toString(), pageWidth - margin - 20, 40, { align: 'center' });
+            doc.setFont(undefined, 'normal');
+        };
+
+        // Helper function to add page footer
+        const addFooter = (pageNum) => {
+            doc.setFontSize(8);
+            doc.setTextColor(100);
+            doc.text(`Sida ${pageNum}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+            doc.setTextColor(0);
+        };
+
+        // ========== PAGE 1: K4 FORM WITH SECTIONS ==========
+        let currentPage = 1;
+        addK4Header(currentPage);
+
+        let yPos = 50;
+
+        // Information box (like in official form)
+        doc.setFillColor(245, 245, 245);
+        doc.setLineWidth(0.3);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 15, 'FD');
+        doc.setFontSize(8);
+        doc.text('Blankett för försäljning av värdepapper (Trading 212)', margin + 2, yPos + 5);
+        doc.text('Detta dokument innehåller sammanställning för K4 Bilaga B - Utländska aktier', margin + 2, yPos + 10);
+        doc.text(`Inkomstår ${year}`, margin + 2, yPos + 13);
+
+        yPos += 20;
+
+        // Summary boxes (Tax boxes)
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('SAMMANFATTNING', margin, yPos);
+        yPos += 7;
+
+        // Summary statistics
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Antal transaktioner: ${sellTransactions.length}`, margin, yPos);
+        doc.text(`Antal värdepapper: ${Object.keys(window.k4Data.aggregated.reduce((acc, item) => { acc[item.ISIN] = true; return acc; }, {})).length}`, margin + 60, yPos);
+        yPos += 8;
+
+        // Tax boxes section
+        doc.setLineWidth(0.5);
+        const boxHeight = 10;
+        const boxWidth = (pageWidth - 2 * margin) / 2;
+
+        // Box 3.3 - Vinster (Gains)
+        doc.setFillColor(255, 255, 255);
+        doc.rect(margin, yPos, boxWidth - 2, boxHeight);
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'bold');
+        doc.text('Box 3.3 Vinster:', margin + 2, yPos + 6);
+        doc.setTextColor(0, 120, 0);
+        doc.text(formatSEK(totalGains), margin + boxWidth - 4, yPos + 6, { align: 'right' });
+        doc.setTextColor(0);
+
+        // Box 3.4 - Förluster (Losses)
+        doc.setFillColor(255, 255, 255);
+        doc.rect(margin + boxWidth, yPos, boxWidth - 2, boxHeight);
+        doc.setFont(undefined, 'bold');
+        doc.text('Box 3.4 Förluster:', margin + boxWidth + 2, yPos + 6);
+        doc.setTextColor(180, 0, 0);
+        doc.text(formatSEK(Math.abs(totalLosses)), pageWidth - margin - 2, yPos + 6, { align: 'right' });
+        doc.setTextColor(0);
+
+        yPos += boxHeight + 2;
+
+        // Box 3.5 - Nettoresultat (Net Result)
+        doc.setFillColor(240, 248, 255);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, boxHeight, 'FD');
+        doc.setFont(undefined, 'bold');
+        doc.setFontSize(10);
+        doc.text('Box 3.5 Nettoresultat:', margin + 2, yPos + 6);
+        doc.setTextColor(totalPL >= 0 ? 0 : 180, totalPL >= 0 ? 120 : 0, 0);
+        doc.text(formatSEK(totalPL), pageWidth - margin - 2, yPos + 6, { align: 'right' });
+        doc.setTextColor(0);
+
+        yPos += boxHeight + 3;
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(80);
+        doc.text(`Beräknad skatt (30%): ${formatSEK(Math.max(0, totalPL * 0.3))}`, margin, yPos);
+        doc.setTextColor(0);
+
+        yPos += 10;
+
+        // ========== SECTION A: MARKNADSNOTERADE AKTIER ==========
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('A. Marknadsnoterade aktier, aktieindexobligationer m.m. (Bilaga B - Utländska)', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+
+        // Section A explanation
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Alla Trading 212 värdepapper är utländska och ska rapporteras i K4 Bilaga B', margin, yPos);
+
+        addFooter(currentPage);
+
+        // ========== PAGE 2: SECTION A DATA (AGGREGATED) ==========
+        doc.addPage();
+        currentPage++;
+        addK4Header(currentPage);
+
+        yPos = 50;
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('Sektion A: Marknadsnoterade aktier - Sammanställning (Aggregerad)', margin, yPos);
+
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        yPos += 6;
+        doc.text('Rekommenderas för inmatning i Skatteverkets system. Flera försäljningar av samma värdepapper summeras.', margin, yPos);
+        yPos += 8;
+
+        // Prepare aggregated data table
+        const k4AggregatedData = window.k4Data.aggregated.map(item => [
+            item['Värdepapper'].substring(0, 35), // Truncate long names
+            item['Totalt Antal'].toFixed(4),
+            item['Totalt Försäljningspris (SEK)'].toFixed(2),
+            item['Totalt Omkostnadsbelopp (SEK)'].toFixed(2),
+            item['Totalt Vinst/Förlust (SEK)'].toFixed(2)
+        ]);
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Värdepapper', 'Antal', 'Försäljningspris (SEK)', 'Omkostnadsbelopp (SEK)', 'Vinst/Förlust (SEK)']],
+            body: k4AggregatedData,
+            margin: { left: margin, right: margin, top: 50, bottom: 20 },
+            styles: {
+                fontSize: 7,
+                cellPadding: 2,
+                lineColor: [200, 200, 200],
+                lineWidth: 0.1
+            },
+            headStyles: {
+                fillColor: [220, 220, 220],
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+                halign: 'center',
+                lineWidth: 0.5,
+                lineColor: [100, 100, 100]
+            },
+            columnStyles: {
+                0: { cellWidth: 65 },
+                1: { halign: 'right', cellWidth: 25 },
+                2: { halign: 'right', cellWidth: 28 },
+                3: { halign: 'right', cellWidth: 28 },
+                4: { halign: 'right', cellWidth: 24 }
+            },
+            alternateRowStyles: {
+                fillColor: [250, 250, 250]
+            },
+            didDrawPage: (data) => {
+                addK4Header(currentPage + data.pageNumber - 1);
+                addFooter(currentPage + data.pageNumber - 1);
+            }
+        });
+
+        // Update current page after table
+        currentPage = doc.internal.getNumberOfPages();
+
+        // ========== PAGE N: SECTION A - DETAILED TRANSACTIONS ==========
+        doc.addPage();
+        currentPage++;
+        addK4Header(currentPage);
+
+        yPos = 50;
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('Sektion A: Detaljerad - Alla individuella transaktioner', margin, yPos);
+
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        yPos += 6;
+        doc.text('För verifiering och referens. Varje försäljning visas separat.', margin, yPos);
+        yPos += 8;
+
+        // Prepare detailed data table
+        const k4DetailedData = window.k4Data.detailed.map(item => [
+            item['Värdepapper'].substring(0, 30),
+            item['Antal'].toFixed(4),
+            item['Försäljningspris (SEK)'].toFixed(2),
+            item['Omkostnadsbelopp (SEK)'].toFixed(2),
+            item['Vinst (+) / Förlust (-) (SEK)'].toFixed(2),
+            item['Försäljningsdatum']
+        ]);
+
+        doc.autoTable({
+            startY: yPos,
+            head: [['Värdepapper', 'Antal', 'Försäljningspris', 'Omkostnad', 'Vinst/Förlust', 'Datum']],
+            body: k4DetailedData,
+            margin: { left: margin, right: margin, top: 50, bottom: 20 },
+            styles: {
+                fontSize: 6,
+                cellPadding: 1.5,
+                lineColor: [200, 200, 200],
+                lineWidth: 0.1
+            },
+            headStyles: {
+                fillColor: [220, 220, 220],
+                textColor: [0, 0, 0],
+                fontStyle: 'bold',
+                fontSize: 7,
+                halign: 'center',
+                lineWidth: 0.5,
+                lineColor: [100, 100, 100]
+            },
+            columnStyles: {
+                0: { cellWidth: 55 },
+                1: { halign: 'right', cellWidth: 22 },
+                2: { halign: 'right', cellWidth: 27 },
+                3: { halign: 'right', cellWidth: 27 },
+                4: { halign: 'right', cellWidth: 27 },
+                5: { halign: 'center', cellWidth: 22 }
+            },
+            alternateRowStyles: {
+                fillColor: [252, 252, 252]
+            },
+            didDrawPage: (data) => {
+                addK4Header(currentPage + data.pageNumber - 1);
+                addFooter(currentPage + data.pageNumber - 1);
+            }
+        });
+
+        // Update current page after table
+        currentPage = doc.internal.getNumberOfPages();
+
+        // ========== FINAL PAGE: SECTIONS B, C, D ==========
+        doc.addPage();
+        currentPage++;
+        addK4Header(currentPage);
+
+        yPos = 50;
+
+        // Section B: Återföring av uppskovsbelopp
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('B. Återföring av uppskovsbelopp', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Ej tillämpligt - Inga uppskovsbelopp att återföra för Trading 212 transaktioner.', margin, yPos);
+
+        yPos += 15;
+
+        // Section C: Marknadsnoterade obligationer
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('C. Marknadsnoterade obligationer, valuta m.m.', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Ej tillämpligt - Trading 212 transaktioner innehåller endast aktier och ETF:er.', margin, yPos);
+
+        yPos += 15;
+
+        // Section D: Övriga värdepapper
+        doc.setFillColor(220, 220, 220);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8, 'F');
+        doc.setLineWidth(0.5);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 8);
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text('D. Övriga värdepapper, andra tillgångar (t.ex. kryptovalutor)', margin + 2, yPos + 5.5);
+
+        yPos += 12;
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'italic');
+        doc.text('Ej tillämpligt - Inga övriga värdepapper i denna rapport.', margin, yPos);
+
+        yPos += 15;
+
+        // Footer note
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 20, 'F');
+        doc.setLineWidth(0.3);
+        doc.rect(margin, yPos, pageWidth - 2 * margin, 20);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'bold');
+        doc.text('OBS!', margin + 2, yPos + 5);
+        doc.setFont(undefined, 'normal');
+        doc.text('Detta dokument är genererat från Trading 212 transaktionsdata.', margin + 2, yPos + 10);
+        doc.text('Verifiera alltid uppgifterna mot dina egna register innan inlämning till Skatteverket.', margin + 2, yPos + 15);
+
+        addFooter(currentPage);
+
+        const filename = `${year}_K4_Bilaga_B.pdf`;
+        doc.save(filename);
+
+        console.log('PDF generated successfully');
+        showNotification(`✅ Downloaded: ${filename}`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+    }
 }
 
 function downloadK4AsCSV() {
-    if (!window.k4Data) return;
+    try {
+        console.log('Starting CSV generation...');
 
-    const year = window.year || new Date().getFullYear();
+        if (!window.k4Data) {
+            console.error('No K4 data available');
+            alert('No data available for CSV generation');
+            return;
+        }
 
-    // Use aggregated data for CSV (recommended for filing)
-    const csvContent = Papa.unparse(window.k4Data.aggregated);
+        if (typeof Papa === 'undefined') {
+            console.error('PapaParse library not loaded');
+            alert('CSV library not loaded. Please refresh the page and try again.');
+            return;
+        }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+        const year = window.year || new Date().getFullYear();
 
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${year}_K4_Statement.csv`);
-    link.style.visibility = 'hidden';
+        // Use aggregated data for CSV (recommended for filing)
+        const csvContent = Papa.unparse(window.k4Data.aggregated);
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
 
-    showNotification(`✅ Downloaded: ${year}_K4_Statement.csv`);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${year}_K4_Statement.csv`);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log('CSV generated successfully');
+        showNotification(`✅ Downloaded: ${year}_K4_Statement.csv`);
+    } catch (error) {
+        console.error('Error generating CSV:', error);
+        alert('Error generating CSV: ' + error.message);
+    }
 }
 
 function downloadOriginalExcel() {
-    const format = document.getElementById('originalFormat').value;
+    try {
+        const format = document.getElementById('originalFormat').value;
+        console.log('Selected Original format:', format);
 
-    if (format === 'excel') {
-        downloadOriginalAsExcel();
-    } else if (format === 'pdf') {
-        downloadOriginalAsPDF();
-    } else if (format === 'csv') {
-        downloadOriginalAsCSV();
+        if (format === 'excel') {
+            downloadOriginalAsExcel();
+        } else if (format === 'pdf') {
+            downloadOriginalAsPDF();
+        } else if (format === 'csv') {
+            downloadOriginalAsCSV();
+        }
+    } catch (error) {
+        console.error('Error in downloadOriginalExcel:', error);
+        alert('Error generating download: ' + error.message);
     }
 }
 
@@ -540,93 +845,129 @@ function downloadOriginalAsExcel() {
 }
 
 function downloadOriginalAsPDF() {
-    if (!sellTransactions) return;
+    try {
+        console.log('Starting Original PDF generation...');
 
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4');
-    const year = window.year || new Date().getFullYear();
-
-    // Title
-    doc.setFontSize(18);
-    doc.setFont(undefined, 'bold');
-    doc.text(`Trading 212 Full Statement - ${year}`, 14, 20);
-
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
-    doc.text(`Total Transactions: ${sellTransactions.length}`, 14, 30);
-
-    // Create table data
-    const tableData = sellTransactions.map(t => [
-        formatDateTime(t.time),
-        t.instrument,
-        t.name,
-        t.isin,
-        t.instrumentType,
-        t.currency,
-        t.quantity.toFixed(6),
-        t.pricePerShare.toFixed(2),
-        t.fxRate.toFixed(4),
-        t.totalSEK.toFixed(2),
-        t.realisedPL.toFixed(2)
-    ]);
-
-    doc.autoTable({
-        startY: 35,
-        head: [['Time', 'Ticker', 'Name', 'ISIN', 'Type', 'Currency', 'Quantity', 'Price/Share', 'FX Rate', 'Total (SEK)', 'P/L (SEK)']],
-        body: tableData,
-        styles: { fontSize: 7 },
-        headStyles: { fillColor: [63, 81, 181] },
-        columnStyles: {
-            6: { halign: 'right' },
-            7: { halign: 'right' },
-            8: { halign: 'right' },
-            9: { halign: 'right' },
-            10: { halign: 'right' }
+        if (!sellTransactions) {
+            console.error('No transaction data available');
+            alert('No data available for PDF generation');
+            return;
         }
-    });
 
-    const filename = `${year}_statement.pdf`;
-    doc.save(filename);
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            console.error('jsPDF library not loaded');
+            alert('PDF library not loaded. Please refresh the page and try again.');
+            return;
+        }
 
-    showNotification(`✅ Downloaded: ${filename}`);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4');
+        const year = window.year || new Date().getFullYear();
+
+        // Title
+        doc.setFontSize(18);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Trading 212 Full Statement - ${year}`, 14, 20);
+
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Total Transactions: ${sellTransactions.length}`, 14, 30);
+
+        // Create table data
+        const tableData = sellTransactions.map(t => [
+            formatDateTime(t.time),
+            t.instrument,
+            t.name,
+            t.isin,
+            t.instrumentType,
+            t.currency,
+            t.quantity.toFixed(6),
+            t.pricePerShare.toFixed(2),
+            t.fxRate.toFixed(4),
+            t.totalSEK.toFixed(2),
+            t.realisedPL.toFixed(2)
+        ]);
+
+        doc.autoTable({
+            startY: 35,
+            head: [['Time', 'Ticker', 'Name', 'ISIN', 'Type', 'Currency', 'Quantity', 'Price/Share', 'FX Rate', 'Total (SEK)', 'P/L (SEK)']],
+            body: tableData,
+            styles: { fontSize: 7 },
+            headStyles: { fillColor: [63, 81, 181] },
+            columnStyles: {
+                6: { halign: 'right' },
+                7: { halign: 'right' },
+                8: { halign: 'right' },
+                9: { halign: 'right' },
+                10: { halign: 'right' }
+            }
+        });
+
+        const filename = `${year}_statement.pdf`;
+        doc.save(filename);
+
+        console.log('Original PDF generated successfully');
+        showNotification(`✅ Downloaded: ${filename}`);
+    } catch (error) {
+        console.error('Error generating Original PDF:', error);
+        alert('Error generating PDF: ' + error.message);
+    }
 }
 
 function downloadOriginalAsCSV() {
-    if (!sellTransactions) return;
+    try {
+        console.log('Starting Original CSV generation...');
 
-    const year = window.year || new Date().getFullYear();
+        if (!sellTransactions) {
+            console.error('No transaction data available');
+            alert('No data available for CSV generation');
+            return;
+        }
 
-    // Create CSV data
-    const csvData = sellTransactions.map(t => ({
-        'EXECUTION TIME': formatDateTime(t.time),
-        'INSTRUMENT': t.instrument,
-        'NAME': t.name,
-        'ISIN': t.isin,
-        'INSTRUMENT TYPE': t.instrumentType,
-        'INSTRUMENT CURRENCY': t.currency,
-        'QUANTITY': t.quantity,
-        'PRICE / SHARE': t.pricePerShare,
-        'FX RATE': t.fxRate,
-        'TRANSACTION CURRENCY': t.transactionCurrency,
-        'TOTAL (SEK)': t.totalSEK,
-        'REALISED P/L': t.realisedPL
-    }));
+        if (typeof Papa === 'undefined') {
+            console.error('PapaParse library not loaded');
+            alert('CSV library not loaded. Please refresh the page and try again.');
+            return;
+        }
 
-    const csvContent = Papa.unparse(csvData);
+        const year = window.year || new Date().getFullYear();
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
+        // Create CSV data
+        const csvData = sellTransactions.map(t => ({
+            'EXECUTION TIME': formatDateTime(t.time),
+            'INSTRUMENT': t.instrument,
+            'NAME': t.name,
+            'ISIN': t.isin,
+            'INSTRUMENT TYPE': t.instrumentType,
+            'INSTRUMENT CURRENCY': t.currency,
+            'QUANTITY': t.quantity,
+            'PRICE / SHARE': t.pricePerShare,
+            'FX RATE': t.fxRate,
+            'TRANSACTION CURRENCY': t.transactionCurrency,
+            'TOTAL (SEK)': t.totalSEK,
+            'REALISED P/L': t.realisedPL
+        }));
 
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${year}_statement.csv`);
-    link.style.visibility = 'hidden';
+        const csvContent = Papa.unparse(csvData);
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
 
-    showNotification(`✅ Downloaded: ${year}_statement.csv`);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `${year}_statement.csv`);
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log('Original CSV generated successfully');
+        showNotification(`✅ Downloaded: ${year}_statement.csv`);
+    } catch (error) {
+        console.error('Error generating Original CSV:', error);
+        alert('Error generating CSV: ' + error.message);
+    }
 }
 
 function resetUploadArea() {
