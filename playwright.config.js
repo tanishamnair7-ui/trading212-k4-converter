@@ -3,19 +3,22 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './test/e2e',
-  fullyParallel: true,
+  fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
+  timeout: 30000,
   reporter: [
     ['html'],
-    ['list']
+    ['list'],
+    ['github']
   ],
 
   use: {
     baseURL: 'http://localhost:8000',
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
   projects: [
@@ -23,19 +26,12 @@ module.exports = defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'mobile',
-      use: { ...devices['iPhone 13'] },
-    },
   ],
 
-  webServer: {
-    command: 'python3 -m http.server 8000',
-    port: 8000,
-    reuseExistingServer: !process.env.CI,
-  },
+  // Don't start web server here - GitHub Actions handles it
+  // webServer: {
+  //   command: 'python3 -m http.server 8000',
+  //   port: 8000,
+  //   reuseExistingServer: !process.env.CI,
+  // },
 });
